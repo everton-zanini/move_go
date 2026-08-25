@@ -124,8 +124,6 @@ Ver `.claude/skills/architecture/SKILL.md` para as convenções de camadas (UI �
 ## Deploy na Vercel
 
 1. Na aba **Storage** do projeto na Vercel, crie um banco **Prisma Postgres** (ou outro Postgres gerenciado — Neon, Supabase). A integração da Vercel injeta `DATABASE_URL` (pooled) e `DIRECT_URL` (direta) automaticamente nas env vars do projeto — não precisa configurar essas duas manualmente.
-2. Configure as demais variáveis de ambiente do projeto na Vercel: `AUTH_SECRET` (gere um novo, não reuse o do `.env` local), `NEXTAUTH_URL` e `NEXT_PUBLIC_APP_URL` (a URL final do deploy).
-3. Rode as migrations contra o banco de produção: `npx prisma migrate deploy` (usa `DIRECT_URL` automaticamente, por causa do `directUrl` configurado em `prisma/schema.prisma`).
-4. (Opcional) Rode o seed contra produção com `npx prisma db seed` — troque a senha do admin padrão (`admin@movesantana.com` / `movepet123`) logo em seguida, direto no banco.
-5. Configure `TZ=America/Sao_Paulo` nas env vars (ver nota sobre fuso horário acima).
-6. Deploy normal via `vercel` CLI ou integração com o repositório Git.
+2. Configure as demais variáveis de ambiente do projeto na Vercel: `AUTH_SECRET` (gere um novo, não reuse o do `.env` local), `NEXTAUTH_URL`, `NEXT_PUBLIC_APP_URL` (a URL final do deploy) e `TZ=America/Sao_Paulo` (ver nota sobre fuso horário acima).
+3. Deploy normal via `vercel` CLI ou integração com o repositório Git — o script `vercel-build` do `package.json` já roda `prisma migrate deploy` automaticamente antes do build, então a Vercel detecta e usa esse script sozinha (convenção própria dela, não precisa configurar nada no painel). Novas migrations criadas depois são aplicadas automaticamente a cada deploy.
+4. No primeiro deploy, rode o seed uma vez contra produção: `DATABASE_URL=... DIRECT_URL=... npx prisma db seed` (localmente, apontando pras env vars de produção) — troque a senha do admin padrão (`admin@movesantana.com` / `movepet123`) logo em seguida, direto no banco.

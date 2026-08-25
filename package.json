@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
+    "vercel-build": "prisma migrate deploy && next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "db:up": "docker compose up -d db",
