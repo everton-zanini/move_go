@@ -1,0 +1,53 @@
+/** Erros de domínio tipados — nunca `throw new Error(string)` solto nos services. */
+
+export class DomainError extends Error {
+  constructor(
+    message: string,
+    public readonly code: string
+  ) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
+
+export class NotFoundError extends DomainError {
+  constructor(message: string) {
+    super(message, "NOT_FOUND");
+  }
+}
+
+export class ConflictError extends DomainError {
+  constructor(message: string) {
+    super(message, "CONFLICT");
+  }
+}
+
+export class ValidationError extends DomainError {
+  constructor(message: string) {
+    super(message, "VALIDATION_ERROR");
+  }
+}
+
+export class UnauthenticatedError extends DomainError {
+  constructor(message = "Usuário não autenticado") {
+    super(message, "UNAUTHENTICATED");
+  }
+}
+
+export class EventNotFoundError extends NotFoundError {
+  constructor() {
+    super("Este QR Code não corresponde a nenhum evento.");
+  }
+}
+
+export class EventInactiveError extends DomainError {
+  constructor() {
+    super("Este evento não está mais ativo.", "EVENT_INACTIVE");
+  }
+}
+
+export class EventOutsideWindowError extends DomainError {
+  constructor() {
+    super("O check-in para este evento está fora do horário permitido.", "EVENT_OUTSIDE_WINDOW");
+  }
+}

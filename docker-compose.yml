@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: move_pet_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: movepet
+      POSTGRES_PASSWORD: movepet
+      POSTGRES_DB: move_pet
+    ports:
+      - "5432:5432"
+    volumes:
+      - move_pet_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U movepet -d move_pet"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  move_pet_pgdata:
