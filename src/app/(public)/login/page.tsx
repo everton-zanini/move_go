@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { LoginForm } from "./LoginForm";
 
 export default function LoginPage() {
@@ -16,11 +15,8 @@ export default function LoginPage() {
         <LoginForm />
       </Suspense>
 
-      <p className="text-center text-sm text-white/60">
-        Não tem conta?{" "}
-        <Link href="/register" className="text-emerald-400 underline underline-offset-2">
-          Cadastre-se
-        </Link>
+      <p className="text-center text-xs text-white/60">
+        Novos cadastros são liberados em eventos de lançamento do Move Santana. Fique de olho! 👀
       </p>
     </div>
   );
