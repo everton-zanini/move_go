@@ -4,6 +4,8 @@ import { getLevelCurveParams } from "@/server/services/config.service";
 import { xpProgressForLevel } from "@/lib/game/level-curve";
 import { PetSprite } from "@/components/pet/PetSprite";
 import { PetStatsBar } from "@/components/pet/PetStatsBar";
+import { PetNameForm } from "@/components/pet/PetNameForm";
+import { PetShareToggle } from "@/components/pet/PetShareToggle";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 
 export default async function HomePage() {
@@ -22,6 +24,10 @@ export default async function HomePage() {
   const curve = await getLevelCurveParams();
   const progress = xpProgressForLevel(pet.totalXp, pet.level, curve);
 
+  const stageName = pet.currentEvolution?.name ?? "Spark";
+  const hasHatched = (pet.currentEvolution?.levelRequired ?? 1) > 1;
+  const needsName = hasHatched && !pet.nickname;
+
   return (
     <div className="flex flex-1 flex-col items-center gap-6 px-6 py-8">
       <div className="w-full max-w-xs text-center">
@@ -31,9 +37,12 @@ export default async function HomePage() {
 
       <PetSprite spriteKey={pet.currentEvolution?.sprite ?? "egg"} />
 
+      {needsName && <PetNameForm />}
+
       <div className="w-full max-w-xs text-center">
         <p className="text-sm text-white/70">
-          {pet.currentEvolution?.name ?? "Ovo"} · Nível {pet.level}
+          {pet.nickname ? `${pet.nickname} · ` : ""}
+          {stageName} · Nível {pet.level}
         </p>
         <div className="mt-2">
           <ProgressBar value={progress.current} max={progress.required} />
@@ -44,6 +53,17 @@ export default async function HomePage() {
       </div>
 
       <PetStatsBar energy={pet.energy} happiness={pet.happiness} streak={pet.currentStreak} xp={pet.totalXp} />
+
+      <PetShareToggle
+        petName={pet.nickname ?? session?.user?.name ?? "Jovem"}
+        spriteKey={pet.currentEvolution?.sprite ?? "egg"}
+        level={pet.level}
+        headline={pet.nickname ?? "Meu pet"}
+        subline={`${stageName} · Nível ${pet.level}`}
+        streak={pet.currentStreak}
+        energy={pet.energy}
+        happiness={pet.happiness}
+      />
     </div>
   );
 }

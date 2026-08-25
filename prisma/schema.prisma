@@ -98,7 +98,7 @@ model PetEvolution {
   id            String   @id @default(cuid())
   speciesId     String
   levelRequired Int
-  name          String // nome do estágio (ex.: "Ovo", "Filhote")
+  name          String // nome do estágio (ex.: "Spark", "Rise")
   sprite        String // chave de emoji/estilo hoje; path de spritesheet no futuro
   createdAt     DateTime @default(now())
 

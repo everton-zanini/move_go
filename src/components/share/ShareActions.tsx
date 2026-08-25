@@ -20,7 +20,11 @@ function downloadFile(file: File) {
   URL.revokeObjectURL(url);
 }
 
-export function ShareActions(props: ShareCardProps) {
+interface ShareActionsProps extends ShareCardProps {
+  title?: string;
+}
+
+export function ShareActions({ title = "COMPARTILHE SUA CONQUISTA", ...cardProps }: ShareActionsProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +39,7 @@ export function ShareActions(props: ShareCardProps) {
       const shareData = {
         files: [file],
         title: "MoveGO",
-        text: `${props.headline} ${props.subline} #MoveGO #MoveSantana`,
+        text: `${cardProps.headline} ${cardProps.subline} #MoveGO #MoveSantana`,
       };
 
       if (typeof navigator.share === "function" && (!navigator.canShare || navigator.canShare(shareData))) {
@@ -55,8 +59,8 @@ export function ShareActions(props: ShareCardProps) {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <p className="font-pixel text-xs text-emerald-400">COMPARTILHE SUA CONQUISTA</p>
-      <ShareCard ref={cardRef} {...props} />
+      <p className="font-pixel text-xs text-emerald-400">{title}</p>
+      <ShareCard ref={cardRef} {...cardProps} />
       {error && <p className="text-sm text-red-400">{error}</p>}
       <button
         type="button"

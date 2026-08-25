@@ -22,16 +22,17 @@ async function seedPetSpecies() {
     update: {},
     create: {
       name: "Movinho",
-      description: "A espécie padrão de pet do MOVE Pet — cresce a cada culto e evento em que o jovem participa.",
+      description: "A espécie padrão de pet do MoveGO — cresce a cada culto e evento em que o jovem participa.",
     },
   });
 
+  // Nomes de estágio em inglês, com sentido de avanço/crescimento (alinhado à marca MoveGO).
   const evolutions = [
-    { levelRequired: 1, name: "Ovo", sprite: "egg" },
-    { levelRequired: 2, name: "Filhote", sprite: "hatchling" },
-    { levelRequired: 5, name: "Jovem", sprite: "young" },
-    { levelRequired: 10, name: "Adulto", sprite: "adult" },
-    { levelRequired: 20, name: "Especial", sprite: "special" },
+    { levelRequired: 1, name: "Spark", sprite: "egg" },
+    { levelRequired: 2, name: "Rise", sprite: "hatchling" },
+    { levelRequired: 5, name: "Surge", sprite: "young" },
+    { levelRequired: 10, name: "Ascend", sprite: "adult" },
+    { levelRequired: 20, name: "Apex", sprite: "special" },
   ];
 
   for (const evo of evolutions) {

@@ -8,10 +8,12 @@ export interface ShareCardProps {
   headline: string;
   subline: string;
   streak: number;
+  energy?: number;
+  happiness?: number;
 }
 
 export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function ShareCard(
-  { petName, spriteKey, level, headline, subline, streak },
+  { petName, spriteKey, level, headline, subline, streak, energy, happiness },
   ref
 ) {
   return (
@@ -25,6 +27,12 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
         <PetSprite spriteKey={spriteKey} size="lg" />
         <p className="text-lg leading-tight font-bold text-white">{headline}</p>
         <p className="text-sm text-white/70">{subline}</p>
+        {(energy !== undefined || happiness !== undefined) && (
+          <div className="flex gap-3 text-xs text-white/70">
+            {energy !== undefined && <span>❤️ {energy}</span>}
+            {happiness !== undefined && <span>😊 {happiness}</span>}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col items-center gap-1">

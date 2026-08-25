@@ -47,7 +47,7 @@ export async function recalculateEvolution(params: {
   };
 }
 
-/** Cria o pet inicial (nível 1, estágio "Ovo") de um usuário recém-cadastrado. */
+/** Cria o pet inicial (nível 1, estágio "Spark") de um usuário recém-cadastrado. */
 export async function createInitialPet(userId: string) {
   const species = await findDefaultSpecies();
   if (!species) {

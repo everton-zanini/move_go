@@ -93,7 +93,7 @@ export async function performCheckIn(params: { userId: string; token: string }):
         previousLevel: petBefore.level,
         newLevel: petBefore.level,
         evolved: false,
-        evolutionName: petBefore.currentEvolution?.name ?? "Ovo",
+        evolutionName: petBefore.currentEvolution?.name ?? "Spark",
         spriteKey: petBefore.currentEvolution?.sprite ?? "egg",
         streak: petBefore.currentStreak,
         streakBonusXp: 0,

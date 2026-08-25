@@ -93,7 +93,7 @@ npm run start
 O `prisma/seed.ts` cria:
 
 - 1 usuário admin (`admin@movesantana.com` / `movepet123` — **troque em produção**)
-- 1 espécie de pet ("Movinho") com 5 estágios de evolução (Ovo → Filhote → Jovem → Adulto → Especial)
+- 1 espécie de pet ("Movinho") com 5 estágios de evolução (Spark → Rise → Surge → Ascend → Apex)
 - 4 itens de inventário (incluindo o item especial "Fone Adora")
 - 6 conquistas
 - 3 eventos de exemplo, cada um com um QR Code de teste (`/checkin/<token>`) — os tokens são impressos no console ao rodar `npx prisma db seed`
