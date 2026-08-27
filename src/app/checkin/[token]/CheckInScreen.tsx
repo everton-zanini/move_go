@@ -11,7 +11,7 @@ const initialState: CheckInActionState = { status: "idle" };
 
 function buildShareContent(r: CheckInResult): { headline: string; subline: string } {
   if (r.evolved) {
-    return { headline: "Meu pet evoluiu! 🎉", subline: r.evolutionName };
+    return { headline: "Meu Spark evoluiu! 🎉", subline: r.evolutionName };
   }
   if (r.newAchievements.length > 0) {
     return { headline: "Conquista desbloqueada! 🏆", subline: r.newAchievements[0].name };
@@ -132,7 +132,7 @@ export function CheckInScreen({
           href="/"
           className="mt-4 rounded-full bg-emerald-500 px-6 py-3 text-sm font-bold text-black"
         >
-          Ver meu pet
+          Ver meu Spark
         </Link>
       </div>
     );

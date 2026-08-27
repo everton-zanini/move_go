@@ -61,7 +61,7 @@ export default async function HomePage() {
         petName={pet.nickname ?? session?.user?.name ?? "Jovem"}
         spriteKey={pet.currentEvolution?.sprite ?? "egg"}
         level={pet.level}
-        headline={pet.nickname ?? "Meu pet"}
+        headline={pet.nickname ?? "Meu Spark"}
         subline={`${stageName} · Nível ${pet.level}`}
         streak={pet.currentStreak}
         energy={pet.energy}

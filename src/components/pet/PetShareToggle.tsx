@@ -14,10 +14,10 @@ export function PetShareToggle(props: ShareCardProps) {
         onClick={() => setOpen(true)}
         className="rounded-full border border-white/15 px-4 py-2 text-sm text-white/70 hover:bg-white/5"
       >
-        📤 Compartilhar meu pet
+        📤 Compartilhar meu Spark
       </button>
     );
   }
 
-  return <ShareActions title="COMPARTILHE SEU PET" {...props} />;
+  return <ShareActions title="COMPARTILHE SEU SPARK" {...props} />;
 }
