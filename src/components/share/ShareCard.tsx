@@ -10,10 +10,11 @@ export interface ShareCardProps {
   streak: number;
   energy?: number;
   happiness?: number;
+  equippedItemSpriteKeys?: string[];
 }
 
 export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function ShareCard(
-  { petName, spriteKey, level, headline, subline, streak, energy, happiness },
+  { petName, spriteKey, level, headline, subline, streak, energy, happiness, equippedItemSpriteKeys },
   ref
 ) {
   return (
@@ -24,7 +25,7 @@ export const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(function Sha
       <p className="font-pixel text-[10px] text-emerald-400">MOVEGO</p>
 
       <div className="flex flex-col items-center gap-3">
-        <PetSprite spriteKey={spriteKey} size="lg" />
+        <PetSprite spriteKey={spriteKey} size="lg" equippedItemSpriteKeys={equippedItemSpriteKeys} />
         <p className="text-lg leading-tight font-bold text-white">{headline}</p>
         <p className="text-sm text-white/70">{subline}</p>
         {(energy !== undefined || happiness !== undefined) && (

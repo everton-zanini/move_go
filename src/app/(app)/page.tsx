@@ -1,6 +1,7 @@
 import { auth } from "@/server/auth/auth";
 import { findPetByUserId } from "@/server/repositories/pet.repository";
 import { getLevelCurveParams } from "@/server/services/config.service";
+import { listInventory } from "@/server/services/inventory.service";
 import { xpProgressForLevel } from "@/lib/game/level-curve";
 import { PetSprite } from "@/components/pet/PetSprite";
 import { PetStatsBar } from "@/components/pet/PetStatsBar";
@@ -11,6 +12,8 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 export default async function HomePage() {
   const session = await auth();
   const pet = session?.user ? await findPetByUserId(session.user.id) : null;
+  const inventory = session?.user ? await listInventory(session.user.id) : [];
+  const equippedItemSpriteKeys = inventory.filter((ui) => ui.equipped).map((ui) => ui.item.sprite);
 
   if (!pet) {
     return (
@@ -35,7 +38,7 @@ export default async function HomePage() {
         <h1 className="mt-1 text-lg font-bold">{session?.user?.name}</h1>
       </div>
 
-      <PetSprite spriteKey={pet.currentEvolution?.sprite ?? "egg"} />
+      <PetSprite spriteKey={pet.currentEvolution?.sprite ?? "egg"} equippedItemSpriteKeys={equippedItemSpriteKeys} />
 
       {needsName && <PetNameForm />}
 
@@ -63,6 +66,7 @@ export default async function HomePage() {
         streak={pet.currentStreak}
         energy={pet.energy}
         happiness={pet.happiness}
+        equippedItemSpriteKeys={equippedItemSpriteKeys}
       />
     </div>
   );

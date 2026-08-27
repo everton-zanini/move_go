@@ -1,5 +1,6 @@
 import { auth } from "@/server/auth/auth";
 import { listInventory } from "@/server/services/inventory.service";
+import { ItemSprite } from "@/components/item/ItemSprite";
 import { toggleEquipAction } from "./actions";
 
 const SLOT_LABELS: Record<string, string> = {
@@ -35,7 +36,7 @@ export default async function InventoryPage() {
             key={userItem.itemId}
             className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-4 text-center"
           >
-            <p className="text-3xl">✨</p>
+            <ItemSprite spriteKey={userItem.item.sprite} />
             <p className="text-sm font-semibold">{userItem.item.name}</p>
             <p className="text-[10px] uppercase tracking-wide text-white/65">
               {SLOT_LABELS[userItem.item.slot] ?? userItem.item.slot}

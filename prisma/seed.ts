@@ -52,6 +52,7 @@ async function seedItems() {
     { name: "Boné", description: "Boné descolado para o pet.", sprite: "item_cap", slot: ItemSlot.HAT, unlockLevel: 5 },
     { name: "Óculos", description: "Óculos estiloso.", sprite: "item_glasses", slot: ItemSlot.ACCESSORY, unlockCheckInCount: 5 },
     { name: "Fone Adora", description: "Item especial do evento Adora Santana.", sprite: "item_headphones_adora", slot: ItemSlot.ACCESSORY },
+    { name: "BeBrave Glasses", description: "Óculos especial do evento BeBrave.", sprite: "item_bebrave_glasses", slot: ItemSlot.ACCESSORY },
   ];
 
   const created = [];
@@ -126,7 +127,7 @@ async function seedAdminUser(speciesId: string) {
   return admin;
 }
 
-async function seedEvents(specialItemId: string | undefined) {
+async function seedEvents(adoraItemId: string | undefined, bebraveItemId: string | undefined) {
   const now = new Date();
   const events = [
     {
@@ -148,7 +149,7 @@ async function seedEvents(specialItemId: string | undefined) {
       endTime: new Date(now.getTime() + 3 * 60 * 60_000),
       xpReward: 200,
       active: true,
-      specialItemId,
+      specialItemId: adoraItemId,
     },
     {
       id: "seed-event-culto-especial",
@@ -159,6 +160,17 @@ async function seedEvents(specialItemId: string | undefined) {
       endTime: new Date(now.getTime() + 60 * 60_000),
       xpReward: 300,
       active: true,
+    },
+    {
+      id: "seed-event-bebrave",
+      name: "BeBrave",
+      description: "Evento especial BeBrave.",
+      date: now,
+      startTime: new Date(now.getTime() - 30 * 60_000),
+      endTime: new Date(now.getTime() + 3 * 60 * 60_000),
+      xpReward: 200,
+      active: true,
+      specialItemId: bebraveItemId,
     },
   ];
 
@@ -185,7 +197,8 @@ async function main() {
   await seedAchievements();
   await seedAdminUser(species.id);
   const adoraItem = items.find((i) => i.name === "Fone Adora");
-  await seedEvents(adoraItem?.id);
+  const bebraveItem = items.find((i) => i.name === "BeBrave Glasses");
+  await seedEvents(adoraItem?.id, bebraveItem?.id);
 }
 
 main()

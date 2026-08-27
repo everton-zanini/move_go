@@ -99,7 +99,7 @@ model PetEvolution {
   speciesId     String
   levelRequired Int
   name          String // nome do estágio (ex.: "Spark", "Rise")
-  sprite        String // chave de emoji/estilo hoje; path de spritesheet no futuro
+  sprite        String // chave que indexa public/pet/<chave>.png (ver src/components/pet/PetSprite.tsx)
   createdAt     DateTime @default(now())
 
   species PetSpecies @relation(fields: [speciesId], references: [id], onDelete: Cascade)
