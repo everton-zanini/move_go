@@ -15,6 +15,14 @@ export function listEvents(client: Client = prisma) {
   return client.event.findMany({ orderBy: { date: "desc" } });
 }
 
+/** Eventos ativos ainda por vir, para a agenda pública do jovem. */
+export function listUpcomingActiveEvents(startOfToday: Date, client: Client = prisma) {
+  return client.event.findMany({
+    where: { active: true, date: { gte: startOfToday } },
+    orderBy: { date: "asc" },
+  });
+}
+
 export function createEvent(data: Prisma.EventUncheckedCreateInput, client: Client = prisma) {
   return client.event.create({ data });
 }

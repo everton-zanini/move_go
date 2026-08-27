@@ -1,4 +1,5 @@
 import { nanoid } from "nanoid";
+import { startOfDay } from "date-fns";
 import { ConflictError, EventNotFoundError, NotFoundError } from "@/server/errors";
 import {
   countCheckInsForEvent,
@@ -7,6 +8,7 @@ import {
   findEventById,
   findEventByToken,
   listEvents as listEventsRepo,
+  listUpcomingActiveEvents,
   updateEvent as updateEventRepo,
 } from "@/server/repositories/event.repository";
 import { buildCheckInUrl, generateCheckInQrPng } from "@/lib/qrcode/generate";
@@ -31,6 +33,11 @@ function combineDateAndTime(dateStr: string, timeStr: string): Date {
 
 export function listEvents() {
   return listEventsRepo();
+}
+
+/** Agenda pública: próximos eventos ativos, do mais próximo pro mais distante. */
+export function listUpcomingEvents() {
+  return listUpcomingActiveEvents(startOfDay(new Date()));
 }
 
 export async function getEventById(id: string) {

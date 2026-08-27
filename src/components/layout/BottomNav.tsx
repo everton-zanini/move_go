@@ -7,6 +7,7 @@ const TABS = [
   { href: "/", label: "Pet", icon: "🏠" },
   { href: "/inventory", label: "Itens", icon: "🎒" },
   { href: "/achievements", label: "Conquistas", icon: "🏆" },
+  { href: "/events", label: "Agenda", icon: "📅" },
   { href: "/profile", label: "Perfil", icon: "👤" },
 ];
 
