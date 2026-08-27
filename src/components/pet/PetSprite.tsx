@@ -19,6 +19,11 @@ const SPRITE_IMAGES: Record<string, string> = {
  * "pelado" mesmo com o item equipado — não há fallback de composição automática ainda.
  */
 const EQUIPPED_SPRITE_IMAGES: Record<string, string> = {
+  // Arte temporária: reaproveita a arte do Fone Adora até o Fone base ganhar arte própria.
+  "hatchling__item_headphones": "/pet/hatchling-item_headphones.png",
+  "young__item_headphones": "/pet/young-item_headphones.png",
+  "adult__item_headphones": "/pet/adult-item_headphones.png",
+  "special__item_headphones": "/pet/special-item_headphones.png",
   "hatchling__item_headphones_adora": "/pet/hatchling-item_headphones_adora.png",
   "young__item_headphones_adora": "/pet/young-item_headphones_adora.png",
   "adult__item_headphones_adora": "/pet/adult-item_headphones_adora.png",
