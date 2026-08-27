@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { PetSprite } from "@/components/pet/PetSprite";
+import { EvolutionModal } from "@/components/pet/EvolutionModal";
 import { ShareActions } from "@/components/share/ShareActions";
 import { performCheckInAction, type CheckInActionState } from "./actions";
 import type { CheckInResult } from "@/server/services/checkin.service";
@@ -85,12 +85,7 @@ export function CheckInScreen({
           </div>
         )}
 
-        {r.evolved && (
-          <div className="mt-2 flex flex-col items-center gap-2">
-            <PetSprite spriteKey={r.spriteKey} size="md" />
-            <p className="text-sm text-white/70">Seu pet evoluiu para {r.evolutionName}!</p>
-          </div>
-        )}
+        {r.evolved && <EvolutionModal evolutionName={r.evolutionName} spriteKey={r.spriteKey} />}
 
         {r.newItems.length > 0 && (
           <div className="mt-2 flex flex-col items-center gap-1">
