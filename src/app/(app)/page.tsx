@@ -8,6 +8,8 @@ import { PetStatsBar } from "@/components/pet/PetStatsBar";
 import { PetNameForm } from "@/components/pet/PetNameForm";
 import { PetShareToggle } from "@/components/pet/PetShareToggle";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { CheckInModal } from "@/components/checkin/CheckInModal";
+import { DebugPanel } from "@/components/debug/DebugPanel";
 
 export default async function HomePage() {
   const session = await auth();
@@ -37,6 +39,10 @@ export default async function HomePage() {
         <p className="font-pixel text-[10px] text-emerald-400">MOVEGO</p>
         <h1 className="mt-1 text-lg font-bold">{session?.user?.name}</h1>
       </div>
+
+      {session?.user?.role === "ADMIN" && <DebugPanel />}
+
+      <CheckInModal />
 
       <PetSprite spriteKey={pet.currentEvolution?.sprite ?? "egg"} equippedItemSpriteKeys={equippedItemSpriteKeys} />
 

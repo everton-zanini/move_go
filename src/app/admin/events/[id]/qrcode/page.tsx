@@ -36,6 +36,11 @@ export default async function EventQrCodePage({ params }: { params: Promise<{ id
 
       <p className="max-w-xs break-all text-center text-xs text-white/50 print:text-black">{checkInUrl}</p>
 
+      <div className="flex flex-col items-center gap-1 rounded-lg border border-white/10 px-4 py-3 print:border-black">
+        <p className="text-xs text-white/50 print:text-black">Sem como imprimir? Passe o código:</p>
+        <p className="font-pixel text-lg tracking-widest text-emerald-400 print:text-black">{event.shortCode}</p>
+      </div>
+
       <div className="flex gap-3 print:hidden">
         <a
           href={`/api/qrcode/${event.id}?download=1`}

@@ -1,4 +1,5 @@
-import { nanoid } from "nanoid";
+import { nanoid, customAlphabet } from "nanoid";
+import { Prisma } from "@prisma/client";
 import { startOfDay } from "date-fns";
 import { ConflictError, EventNotFoundError, NotFoundError } from "@/server/errors";
 import {
@@ -6,6 +7,7 @@ import {
   createEvent as createEventRepo,
   deleteEvent as deleteEventRepo,
   findEventById,
+  findEventByShortCode,
   findEventByToken,
   listEvents as listEventsRepo,
   listUpcomingActiveEvents,
@@ -23,8 +25,26 @@ export async function validateToken(token: string) {
   return event;
 }
 
+/** Resolve um código curto digitado manualmente (fallback quando não dá pra escanear o QR). */
+export async function resolveShortCode(code: string) {
+  const event = await findEventByShortCode(code.trim().toUpperCase());
+  if (!event) {
+    throw new EventNotFoundError();
+  }
+  return event;
+}
+
 export function generateQrToken(): string {
   return nanoid(24);
+}
+
+// Alfabeto sem caracteres ambíguos (sem 0/O, 1/I/L) — pra digitar de ouvido/à mão sem erro.
+const SHORT_CODE_ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
+const generateShortCodeCandidate = customAlphabet(SHORT_CODE_ALPHABET, 6);
+
+/** Gerado pelo sistema, nunca escolhido pelo admin — ver skill qr-checkin. */
+export function generateShortCode(): string {
+  return generateShortCodeCandidate();
 }
 
 function combineDateAndTime(dateStr: string, timeStr: string): Date {
@@ -48,17 +68,26 @@ export async function getEventById(id: string) {
   return event;
 }
 
-export async function createEvent(input: EventFormInput) {
-  return createEventRepo({
-    name: input.name,
-    description: input.description || null,
-    date: combineDateAndTime(input.date, "00:00"),
-    startTime: combineDateAndTime(input.date, input.startTime),
-    endTime: combineDateAndTime(input.date, input.endTime),
-    xpReward: input.xpReward,
-    qrCodeToken: generateQrToken(),
-    active: true,
-  });
+export async function createEvent(input: EventFormInput, attempt = 0): Promise<Awaited<ReturnType<typeof createEventRepo>>> {
+  try {
+    return await createEventRepo({
+      name: input.name,
+      description: input.description || null,
+      date: combineDateAndTime(input.date, "00:00"),
+      startTime: combineDateAndTime(input.date, input.startTime),
+      endTime: combineDateAndTime(input.date, input.endTime),
+      xpReward: input.xpReward,
+      qrCodeToken: generateQrToken(),
+      shortCode: generateShortCode(),
+      active: true,
+    });
+  } catch (error) {
+    // shortCode tem só 6 caracteres — colisão é improvável mas não impossível, tenta de novo.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002" && attempt < 5) {
+      return createEvent(input, attempt + 1);
+    }
+    throw error;
+  }
 }
 
 export async function updateEvent(id: string, input: EventFormInput) {

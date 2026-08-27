@@ -1,7 +1,10 @@
 import { PrismaClient, ItemSlot, AchievementCriteriaType } from "@prisma/client";
-import { nanoid } from "nanoid";
+import { nanoid, customAlphabet } from "nanoid";
 import bcrypt from "bcryptjs";
 import { GAME_RULES_DEFAULTS } from "../src/config/game-rules.default";
+
+// Mesmo alfabeto sem caracteres ambíguos usado em EventService.generateShortCode.
+const generateShortCode = customAlphabet("23456789ABCDEFGHJKMNPQRSTUVWXYZ", 6);
 
 const prisma = new PrismaClient();
 
@@ -179,7 +182,11 @@ async function seedEvents(adoraItemId: string | undefined, bebraveItemId: string
     await prisma.event.upsert({
       where: { id: event.id },
       update: {},
-      create: { ...event, qrCodeToken: existing?.qrCodeToken ?? nanoid(24) },
+      create: {
+        ...event,
+        qrCodeToken: existing?.qrCodeToken ?? nanoid(24),
+        shortCode: existing?.shortCode ?? generateShortCode(),
+      },
     });
   }
 

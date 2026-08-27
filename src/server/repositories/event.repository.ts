@@ -7,6 +7,10 @@ export function findEventByToken(token: string, client: Client = prisma) {
   return client.event.findUnique({ where: { qrCodeToken: token } });
 }
 
+export function findEventByShortCode(shortCode: string, client: Client = prisma) {
+  return client.event.findUnique({ where: { shortCode } });
+}
+
 export function findEventById(id: string, client: Client = prisma) {
   return client.event.findUnique({ where: { id } });
 }
