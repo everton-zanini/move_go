@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/server/auth/auth";
 import { petNicknameSchema } from "@/server/dto/pet.dto";
 import { debugAddXpToNextEvolution, debugResetPet, renamePet } from "@/server/services/pet.service";
+import { debugGrantItemByName } from "@/server/services/inventory.service";
 import { resolveShortCode } from "@/server/services/event.service";
 import { DomainError, UnauthenticatedError } from "@/server/errors";
 
@@ -87,4 +88,24 @@ export async function debugResetPetAction(
   await debugResetPet(session.user.id);
   revalidatePath("/");
   return { message: "Pet resetado para o estágio inicial." };
+}
+
+export async function debugUnlockFoneAction(
+  _prevState: DebugActionState,
+  _formData: FormData
+): Promise<DebugActionState> {
+  const session = await requireAdmin();
+  await debugGrantItemByName(session.user.id, "Fone");
+  revalidatePath("/inventory");
+  return { message: "Fone liberado! Veja em Itens 🎒" };
+}
+
+export async function debugUnlockOculosAction(
+  _prevState: DebugActionState,
+  _formData: FormData
+): Promise<DebugActionState> {
+  const session = await requireAdmin();
+  await debugGrantItemByName(session.user.id, "Óculos");
+  revalidatePath("/inventory");
+  return { message: "Óculos liberado! Veja em Itens 🎒" };
 }

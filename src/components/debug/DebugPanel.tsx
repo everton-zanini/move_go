@@ -4,6 +4,8 @@ import { useActionState } from "react";
 import {
   debugAddXpAction,
   debugResetPetAction,
+  debugUnlockFoneAction,
+  debugUnlockOculosAction,
   type DebugActionState,
 } from "@/app/(app)/actions";
 
@@ -12,11 +14,15 @@ const initialState: DebugActionState = {};
 export function DebugPanel() {
   const [xpState, xpAction, xpPending] = useActionState(debugAddXpAction, initialState);
   const [resetState, resetAction, resetPending] = useActionState(debugResetPetAction, initialState);
+  const [foneState, foneAction, fonePending] = useActionState(debugUnlockFoneAction, initialState);
+  const [oculosState, oculosAction, oculosPending] = useActionState(debugUnlockOculosAction, initialState);
+
+  const message = xpState.message ?? resetState.message ?? foneState.message ?? oculosState.message;
 
   return (
     <div className="flex w-full max-w-xs flex-col items-center gap-2 rounded-lg border border-dashed border-yellow-400/40 p-3">
       <p className="text-center text-[10px] font-pixel text-yellow-400">MODO DEBUG (ADMIN)</p>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap justify-center gap-2">
         <form action={xpAction}>
           <button
             type="submit"
@@ -42,10 +48,26 @@ export function DebugPanel() {
             {resetPending ? "..." : "♻️ Resetar pet"}
           </button>
         </form>
+        <form action={foneAction}>
+          <button
+            type="submit"
+            disabled={fonePending}
+            className="rounded-lg bg-yellow-400/20 px-3 py-2 text-xs font-semibold text-yellow-200 disabled:opacity-60"
+          >
+            {fonePending ? "..." : "🎧 Liberar Fone"}
+          </button>
+        </form>
+        <form action={oculosAction}>
+          <button
+            type="submit"
+            disabled={oculosPending}
+            className="rounded-lg bg-yellow-400/20 px-3 py-2 text-xs font-semibold text-yellow-200 disabled:opacity-60"
+          >
+            {oculosPending ? "..." : "🕶️ Liberar Óculos"}
+          </button>
+        </form>
       </div>
-      {(xpState.message || resetState.message) && (
-        <p className="text-center text-xs text-white/60">{xpState.message ?? resetState.message}</p>
-      )}
+      {message && <p className="text-center text-xs text-white/60">{message}</p>}
     </div>
   );
 }

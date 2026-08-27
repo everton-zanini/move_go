@@ -1,6 +1,7 @@
 import { auth } from "@/server/auth/auth";
 import { listInventory } from "@/server/services/inventory.service";
 import { ItemSprite } from "@/components/item/ItemSprite";
+import { EquipButton } from "@/components/inventory/EquipButton";
 import { toggleEquipAction } from "./actions";
 
 const SLOT_LABELS: Record<string, string> = {
@@ -42,14 +43,7 @@ export default async function InventoryPage() {
               {SLOT_LABELS[userItem.item.slot] ?? userItem.item.slot}
             </p>
             <form action={toggleEquipAction.bind(null, userItem.itemId, userItem.equipped)}>
-              <button
-                type="submit"
-                className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                  userItem.equipped ? "bg-emerald-500 text-black" : "bg-white/10 text-white/70"
-                }`}
-              >
-                {userItem.equipped ? "Equipado" : "Equipar"}
-              </button>
+              <EquipButton equipped={userItem.equipped} />
             </form>
           </div>
         ))}

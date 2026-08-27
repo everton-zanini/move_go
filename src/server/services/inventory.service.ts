@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db/prisma";
 import type { Prisma } from "@prisma/client";
 import {
   findItemById,
+  findItemByName,
   findUserItem,
   listAutoUnlockItems,
   listUserItems,
@@ -17,6 +18,15 @@ import { NotFoundError } from "@/server/errors";
 export async function grantItem(params: { userId: string; itemId: string; tx?: Prisma.TransactionClient }) {
   const client = params.tx ?? prisma;
   return upsertUserItem(params.userId, params.itemId, client);
+}
+
+/** DEBUG (admin): concede um item pelo nome, pra testar equipar/desequipar sem grind. */
+export async function debugGrantItemByName(userId: string, itemName: string) {
+  const item = await findItemByName(itemName);
+  if (!item) {
+    throw new NotFoundError(`Item "${itemName}" não encontrado.`);
+  }
+  return grantItem({ userId, itemId: item.id });
 }
 
 /** Verifica itens com regra de desbloqueio automático (nível/quantidade de check-ins) e concede os que faltam. */

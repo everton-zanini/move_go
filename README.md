@@ -121,6 +121,10 @@ Ver `.claude/skills/architecture/SKILL.md` para as convenções de camadas (UI �
 7. ✅ Compartilhamento (card visual gerado client-side com `html-to-image`, na tela de resultado do check-in — evolução/conquista/item têm prioridade sobre o check-in simples; usa a Web Share API nativa quando disponível — ótimo pra Instagram/WhatsApp — com fallback de download da imagem)
 8. ✅ PWA + refinamento visual (ícones reais 192/512 + maskable, fallback offline em `/~offline`, páginas 404/erro estilizadas, `trustHost` corrigido para funcionar em produção fora da Vercel, `robots.txt` bloqueando indexação — app privado — e ajustes de contraste; auditado com Lighthouse: Accessibility 100, Best Practices 100)
 
+## Ideias futuras (backlog)
+
+- **Troca de experiências entre jovens em eventos especiais** (inspirado na troca de Pokémon via cabo link do Game Boy): permitir que dois usuários "troquem" algo (item, XP bônus, conquista especial de evento) entre si durante um evento. Bluetooth/Web Bluetooth foi descartado — Safari/iOS não implementa a API. Abordagem recomendada: **mediada pelo servidor**, reaproveitando o mesmo padrão de QR Code/código curto já usado no check-in (`shortCode` em `Event`, `CheckInModal`) — um usuário gera um código de troca temporário, o outro escaneia ou digita, e o servidor casa os dois e executa a troca dentro de uma transação (`prisma.$transaction`), igual ao `CheckInService.performCheckIn`. Não requer WebRTC/P2P nem API nativa nenhuma, funciona igual em iPhone e Android dentro do PWA.
+
 ## Deploy na Vercel
 
 1. Na aba **Storage** do projeto na Vercel, crie um banco **Prisma Postgres** (ou outro Postgres gerenciado — Neon, Supabase). A integração da Vercel injeta `DATABASE_URL` (pooled) e `DIRECT_URL` (direta) automaticamente nas env vars do projeto — não precisa configurar essas duas manualmente.

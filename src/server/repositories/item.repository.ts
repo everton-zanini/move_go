@@ -11,6 +11,10 @@ export function findItemById(id: string, client: Client = prisma) {
   return client.item.findUnique({ where: { id } });
 }
 
+export function findItemByName(name: string, client: Client = prisma) {
+  return client.item.findFirst({ where: { name } });
+}
+
 /** Itens com regra de desbloqueio automático (por nível ou quantidade de check-ins). */
 export function listAutoUnlockItems(client: Client = prisma) {
   return client.item.findMany({

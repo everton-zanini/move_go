@@ -78,7 +78,7 @@ async function seedAchievements() {
     { name: "Constante", description: "5 check-ins.", icon: "🔥🔥", criteriaType: AchievementCriteriaType.CHECKIN_COUNT, criteriaValue: 5 },
     { name: "Dedicado", description: "10 check-ins.", icon: "⭐", criteriaType: AchievementCriteriaType.CHECKIN_COUNT, criteriaValue: 10 },
     { name: "Evento Especial", description: "Participou de um evento especial.", icon: "🎉", criteriaType: AchievementCriteriaType.SPECIAL_EVENT, criteriaValue: null },
-    { name: "Primeira Evolução", description: "Pet evoluiu pela primeira vez.", icon: "🐣", criteriaType: AchievementCriteriaType.LEVEL, criteriaValue: 2 },
+    { name: "Primeira Evolução", description: "Spark evoluiu pela primeira vez.", icon: "🐣", criteriaType: AchievementCriteriaType.LEVEL, criteriaValue: 2 },
   ];
 
   const created = [];
