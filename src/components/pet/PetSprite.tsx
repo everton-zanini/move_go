@@ -27,6 +27,10 @@ const EQUIPPED_SPRITE_IMAGES: Record<string, string> = {
   "young__item_bebrave_glasses": "/pet/young-item_bebrave_glasses.png",
   "adult__item_bebrave_glasses": "/pet/adult-item_bebrave_glasses.png",
   "special__item_bebrave_glasses": "/pet/special-item_bebrave_glasses.png",
+  "hatchling__item_glasses": "/pet/hatchling-item_glasses.png",
+  "young__item_glasses": "/pet/young-item_glasses.png",
+  "adult__item_glasses": "/pet/adult-item_glasses.png",
+  "special__item_glasses": "/pet/special-item_glasses.png",
 };
 
 export function PetSprite({

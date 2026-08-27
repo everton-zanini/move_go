@@ -5,8 +5,9 @@ import Image from "next/image";
  * arte própria ainda (a maioria do seed) caem no fallback de emoji.
  */
 const SPRITE_IMAGES: Record<string, string> = {
-  item_headphones_adora: "/items/item_headphones_adora.svg",
+  item_headphones_adora: "/items/item_headphones_adora.png",
   item_bebrave_glasses: "/items/item_bebrave_glasses.svg",
+  item_glasses: "/items/item_glasses.png",
 };
 
 export function ItemSprite({ spriteKey, className = "" }: { spriteKey: string; className?: string }) {
