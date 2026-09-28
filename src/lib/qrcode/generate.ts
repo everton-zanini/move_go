@@ -1,9 +1,9 @@
 import "server-only";
 import QRCode from "qrcode";
 
-/** Gera o PNG (Buffer) do QR Code para um link de check-in. Uso: admin-only. */
-export async function generateCheckInQrPng(checkInUrl: string): Promise<Buffer> {
-  return QRCode.toBuffer(checkInUrl, {
+/** Gera o PNG (Buffer) de um QR Code para a URL informada. Uso: admin-only. */
+export async function generateQrPng(url: string): Promise<Buffer> {
+  return QRCode.toBuffer(url, {
     type: "png",
     errorCorrectionLevel: "M",
     margin: 2,
@@ -13,4 +13,8 @@ export async function generateCheckInQrPng(checkInUrl: string): Promise<Buffer> 
 
 export function buildCheckInUrl(baseUrl: string, qrCodeToken: string): string {
   return `${baseUrl.replace(/\/$/, "")}/checkin/${qrCodeToken}`;
+}
+
+export function buildInviteUrl(baseUrl: string, token: string): string {
+  return `${baseUrl.replace(/\/$/, "")}/invite/${token}`;
 }

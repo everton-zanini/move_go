@@ -81,6 +81,22 @@ model VerificationToken {
 }
 
 // ============================================================
+// Links de convite para cadastro de jogadores
+// ============================================================
+
+model InviteLink {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  label     String?
+  expiresAt DateTime
+  active    Boolean  @default(true)
+  usesCount Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([active, expiresAt])
+}
+
+// ============================================================
 // Pet / Evolução — Fase 3
 // ============================================================
 

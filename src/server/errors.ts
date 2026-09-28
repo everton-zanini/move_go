@@ -51,3 +51,21 @@ export class EventOutsideWindowError extends DomainError {
     super("O check-in para este evento está fora do horário permitido.", "EVENT_OUTSIDE_WINDOW");
   }
 }
+
+export class InviteLinkNotFoundError extends NotFoundError {
+  constructor() {
+    super("Este link de cadastro não é válido.");
+  }
+}
+
+export class InviteLinkExpiredError extends DomainError {
+  constructor() {
+    super("Este link de cadastro expirou. Peça um novo link ao administrador.", "INVITE_LINK_EXPIRED");
+  }
+}
+
+export class InviteLinkInactiveError extends DomainError {
+  constructor() {
+    super("Este link de cadastro foi desativado.", "INVITE_LINK_INACTIVE");
+  }
+}

@@ -48,24 +48,28 @@ export async function recalculateEvolution(params: {
 }
 
 /** Cria o pet inicial (nível 1, estágio "Spark") de um usuário recém-cadastrado. */
-export async function createInitialPet(userId: string) {
-  const species = await findDefaultSpecies();
+export async function createInitialPet(userId: string, tx?: Prisma.TransactionClient) {
+  const client = tx ?? prisma;
+  const species = await findDefaultSpecies(client);
   if (!species) {
     throw new NotFoundError("Nenhuma espécie de pet configurada.");
   }
 
-  const firstEvolution = await findEvolutionForLevel(species.id, 1);
+  const firstEvolution = await findEvolutionForLevel(species.id, 1, client);
   if (!firstEvolution) {
     throw new NotFoundError("Nenhuma evolução configurada para o nível 1.");
   }
 
-  return createPet({
-    userId,
-    speciesId: species.id,
-    currentEvolutionId: firstEvolution.id,
-    level: 1,
-    totalXp: 0,
-    energy: 100,
-    happiness: 100,
-  });
+  return createPet(
+    {
+      userId,
+      speciesId: species.id,
+      currentEvolutionId: firstEvolution.id,
+      level: 1,
+      totalXp: 0,
+      energy: 100,
+      happiness: 100,
+    },
+    client
+  );
 }

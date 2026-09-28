@@ -13,7 +13,7 @@ import {
   listUpcomingActiveEvents,
   updateEvent as updateEventRepo,
 } from "@/server/repositories/event.repository";
-import { buildCheckInUrl, generateCheckInQrPng } from "@/lib/qrcode/generate";
+import { buildCheckInUrl, generateQrPng } from "@/lib/qrcode/generate";
 import type { EventFormInput } from "@/server/dto/event.dto";
 
 /** Resolve um token opaco de QR Code para o evento associado. Lança se não existir. */
@@ -122,5 +122,5 @@ export async function getQrCodeImage(id: string) {
   const event = await getEventById(id);
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const url = buildCheckInUrl(baseUrl, event.qrCodeToken);
-  return generateCheckInQrPng(url);
+  return generateQrPng(url);
 }

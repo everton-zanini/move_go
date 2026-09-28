@@ -1,15 +1,17 @@
 "use client";
 
 import { useActionState } from "react";
-import { registerAction, type RegisterState } from "./actions";
+import { registerAction, type RegisterState } from "@/app/invite/[token]/actions";
 
 const initialState: RegisterState = {};
 
-export function RegisterForm() {
+export function RegisterForm({ token }: { token: string }) {
   const [state, formAction, isPending] = useActionState(registerAction, initialState);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
+      <input type="hidden" name="token" value={token} />
+
       <div className="flex flex-col gap-1">
         <label htmlFor="name" className="text-sm text-white/70">
           Nome

@@ -13,6 +13,7 @@ export async function registerAction(_prevState: RegisterState, formData: FormDa
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password"),
+    token: formData.get("token"),
   });
 
   if (!parsed.success) {
