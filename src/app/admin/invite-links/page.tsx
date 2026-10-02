@@ -2,6 +2,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { listInviteLinks } from "@/server/services/invite-link.service";
+import { ConfirmSubmitButton } from "@/components/ui/ConfirmSubmitButton";
 import { toggleInviteLinkActiveAction, deleteInviteLinkAction } from "./actions";
 
 export default async function AdminInviteLinksPage() {
@@ -60,14 +61,20 @@ export default async function AdminInviteLinksPage() {
                         QR Code
                       </Link>
                       <form action={toggleInviteLinkActiveAction.bind(null, link.id)}>
-                        <button type="submit" className="text-white/60 underline underline-offset-2">
-                          {link.active ? "Desativar" : "Ativar"}
-                        </button>
+                        <ConfirmSubmitButton
+                          label={link.active ? "Desativar" : "Ativar"}
+                          confirmMessage={`${link.active ? "Desativar" : "Ativar"} este link de cadastro?`}
+                          className="text-white/60 underline underline-offset-2"
+                        />
                       </form>
                       <form action={deleteInviteLinkAction.bind(null, link.id)}>
-                        <button type="submit" className="text-red-400 underline underline-offset-2">
-                          Excluir
-                        </button>
+                        <ConfirmSubmitButton
+                          label="Excluir"
+                          pendingLabel="Excluindo..."
+                          confirmMessage="Excluir este link de cadastro? Essa ação não pode ser desfeita."
+                          confirmLabel="Excluir"
+                          className="text-red-400 underline underline-offset-2"
+                        />
                       </form>
                     </div>
                   </td>

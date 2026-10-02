@@ -26,6 +26,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
       <EventForm
         action={boundAction}
         submitLabel="Salvar alterações"
+        confirmMessage="Salvar as alterações?"
         defaultValues={{
           name: event.name,
           description: event.description ?? "",

@@ -10,6 +10,7 @@ import {
   toggleEventActive,
   updateEvent,
 } from "@/server/services/event.service";
+import { withFlash } from "@/lib/flash";
 import { DomainError } from "@/server/errors";
 
 export type EventFormState = { error?: string };
@@ -43,7 +44,7 @@ export async function createEventAction(
   }
 
   revalidatePath("/admin/events");
-  redirect(`/admin/events/${event.id}/qrcode`);
+  redirect(withFlash(`/admin/events/${event.id}/qrcode`, "Evento criado com sucesso."));
 }
 
 export async function updateEventAction(
@@ -69,13 +70,14 @@ export async function updateEventAction(
 
   revalidatePath("/admin/events");
   revalidatePath(`/admin/events/${id}`);
-  redirect("/admin/events");
+  redirect(withFlash("/admin/events", "Evento atualizado com sucesso."));
 }
 
 export async function toggleEventActiveAction(id: string) {
   await requireAdmin();
   await toggleEventActive(id);
   revalidatePath("/admin/events");
+  redirect(withFlash("/admin/events", "Status do evento alterado."));
 }
 
 export async function deleteEventAction(id: string) {
@@ -85,11 +87,11 @@ export async function deleteEventAction(id: string) {
     await removeEvent(id);
   } catch (error) {
     if (error instanceof DomainError) {
-      redirect(`/admin/events?error=${encodeURIComponent(error.message)}`);
+      redirect(withFlash("/admin/events", error.message, "error"));
     }
     throw error;
   }
 
   revalidatePath("/admin/events");
-  redirect("/admin/events");
+  redirect(withFlash("/admin/events", "Evento excluído com sucesso."));
 }

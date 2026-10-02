@@ -1,21 +1,24 @@
 "use client";
 
 import { useActionState } from "react";
+import { ConfirmSubmitButton } from "@/components/ui/ConfirmSubmitButton";
 import type { InviteLinkFormState } from "./actions";
 
 export function InviteLinkForm({
   action,
   submitLabel,
+  confirmMessage,
   defaultValues,
 }: {
   action: (prevState: InviteLinkFormState, formData: FormData) => Promise<InviteLinkFormState>;
   submitLabel: string;
+  confirmMessage?: string;
   defaultValues?: {
     label: string;
     expiresAt: string;
   };
 }) {
-  const [state, formAction, isPending] = useActionState(action, {});
+  const [state, formAction] = useActionState(action, {});
 
   return (
     <form action={formAction} className="flex max-w-md flex-col gap-4">
@@ -49,13 +52,12 @@ export function InviteLinkForm({
 
       {state?.error && <p className="text-sm text-red-400">{state.error}</p>}
 
-      <button
-        type="submit"
-        disabled={isPending}
+      <ConfirmSubmitButton
+        label={submitLabel}
+        pendingLabel="Salvando..."
+        confirmMessage={confirmMessage}
         className="mt-2 rounded-lg bg-emerald-500 px-4 py-3 text-sm font-bold text-black disabled:opacity-60"
-      >
-        {isPending ? "Salvando..." : submitLabel}
-      </button>
+      />
     </form>
   );
 }

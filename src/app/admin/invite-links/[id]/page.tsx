@@ -26,6 +26,7 @@ export default async function EditInviteLinkPage({ params }: { params: Promise<{
       <InviteLinkForm
         action={boundAction}
         submitLabel="Salvar alterações"
+        confirmMessage="Salvar as alterações?"
         defaultValues={{
           label: link.label ?? "",
           expiresAt: format(link.expiresAt, "yyyy-MM-dd'T'HH:mm"),

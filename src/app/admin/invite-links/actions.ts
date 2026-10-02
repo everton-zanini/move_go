@@ -10,6 +10,7 @@ import {
   toggleInviteLinkActive,
   updateInviteLink,
 } from "@/server/services/invite-link.service";
+import { withFlash } from "@/lib/flash";
 import { DomainError } from "@/server/errors";
 
 export type InviteLinkFormState = { error?: string };
@@ -43,7 +44,7 @@ export async function createInviteLinkAction(
   }
 
   revalidatePath("/admin/invite-links");
-  redirect(`/admin/invite-links/${link.id}/qrcode`);
+  redirect(withFlash(`/admin/invite-links/${link.id}/qrcode`, "Link de cadastro criado com sucesso."));
 }
 
 export async function updateInviteLinkAction(
@@ -69,18 +70,19 @@ export async function updateInviteLinkAction(
 
   revalidatePath("/admin/invite-links");
   revalidatePath(`/admin/invite-links/${id}`);
-  redirect("/admin/invite-links");
+  redirect(withFlash("/admin/invite-links", "Link de cadastro atualizado com sucesso."));
 }
 
 export async function toggleInviteLinkActiveAction(id: string) {
   await requireAdmin();
   await toggleInviteLinkActive(id);
   revalidatePath("/admin/invite-links");
+  redirect(withFlash("/admin/invite-links", "Status do link alterado."));
 }
 
 export async function deleteInviteLinkAction(id: string) {
   await requireAdmin();
   await removeInviteLink(id);
   revalidatePath("/admin/invite-links");
-  redirect("/admin/invite-links");
+  redirect(withFlash("/admin/invite-links", "Link de cadastro excluído com sucesso."));
 }

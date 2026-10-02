@@ -2,14 +2,10 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { listEvents } from "@/server/services/event.service";
+import { ConfirmSubmitButton } from "@/components/ui/ConfirmSubmitButton";
 import { toggleEventActiveAction, deleteEventAction } from "./actions";
 
-export default async function AdminEventsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
-  const { error } = await searchParams;
+export default async function AdminEventsPage() {
   const events = await listEvents();
 
   return (
@@ -23,8 +19,6 @@ export default async function AdminEventsPage({
           + Novo evento
         </Link>
       </div>
-
-      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
 
       <div className="overflow-x-auto rounded-lg border border-white/10">
         <table className="w-full text-left text-sm">
@@ -64,14 +58,20 @@ export default async function AdminEventsPage({
                       QR Code
                     </Link>
                     <form action={toggleEventActiveAction.bind(null, e.id)}>
-                      <button type="submit" className="text-white/60 underline underline-offset-2">
-                        {e.active ? "Desativar" : "Ativar"}
-                      </button>
+                      <ConfirmSubmitButton
+                        label={e.active ? "Desativar" : "Ativar"}
+                        confirmMessage={`${e.active ? "Desativar" : "Ativar"} o evento "${e.name}"?`}
+                        className="text-white/60 underline underline-offset-2"
+                      />
                     </form>
                     <form action={deleteEventAction.bind(null, e.id)}>
-                      <button type="submit" className="text-red-400 underline underline-offset-2">
-                        Excluir
-                      </button>
+                      <ConfirmSubmitButton
+                        label="Excluir"
+                        pendingLabel="Excluindo..."
+                        confirmMessage={`Excluir o evento "${e.name}"? Essa ação não pode ser desfeita.`}
+                        confirmLabel="Excluir"
+                        className="text-red-400 underline underline-offset-2"
+                      />
                     </form>
                   </div>
                 </td>
