@@ -27,6 +27,14 @@ export function listUpcomingActiveEvents(startOfToday: Date, client: Client = pr
   });
 }
 
+/** Eventos ativos cujo `endTime` caiu em (from, to] — usado para detectar eventos perdidos. */
+export function listActiveEventsEndedBetween(from: Date, to: Date, client: Client = prisma) {
+  return client.event.findMany({
+    where: { active: true, endTime: { gt: from, lte: to } },
+    select: { id: true, name: true },
+  });
+}
+
 export function createEvent(data: Prisma.EventUncheckedCreateInput, client: Client = prisma) {
   return client.event.create({ data });
 }

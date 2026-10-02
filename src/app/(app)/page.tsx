@@ -1,5 +1,6 @@
 import { auth } from "@/server/auth/auth";
 import { findPetByUserId } from "@/server/repositories/pet.repository";
+import { applyMissedEventPenalties } from "@/server/services/pet.service";
 import { getLevelCurveParams } from "@/server/services/config.service";
 import { listInventory } from "@/server/services/inventory.service";
 import { xpProgressForLevel } from "@/lib/game/level-curve";
@@ -13,6 +14,8 @@ import { DebugPanel } from "@/components/debug/DebugPanel";
 
 export default async function HomePage() {
   const session = await auth();
+  const penalty =
+    session?.user && session.user.role !== "ADMIN" ? await applyMissedEventPenalties(session.user.id) : null;
   const pet = session?.user ? await findPetByUserId(session.user.id) : null;
   const inventory = session?.user ? await listInventory(session.user.id) : [];
   const equippedItemSpriteKeys = inventory.filter((ui) => ui.equipped).map((ui) => ui.item.sprite);
@@ -39,6 +42,16 @@ export default async function HomePage() {
         <p className="font-pixel text-[10px] text-emerald-400">MOVEGO</p>
         <h1 className="mt-1 text-lg font-bold">{session?.user?.name}</h1>
       </div>
+
+      {penalty && penalty.missedEvents.length > 0 && (
+        <div className="w-full max-w-xs rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2 text-center text-xs text-red-200">
+          <p>Você perdeu: {penalty.missedEvents.join(", ")}</p>
+          <p className="mt-1">
+            {penalty.energyLost > 0 && `−${penalty.energyLost} ❤️ Energia `}
+            {penalty.happinessLost > 0 && `−${penalty.happinessLost} 😊 Felicidade`}
+          </p>
+        </div>
+      )}
 
       {session?.user?.role === "ADMIN" && <DebugPanel />}
 

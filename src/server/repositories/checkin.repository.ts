@@ -11,6 +11,14 @@ export function findCheckIn(userId: string, eventId: string, client: Client = pr
   return client.checkIn.findUnique({ where: { userId_eventId: { userId, eventId } } });
 }
 
+export async function listCheckedEventIds(userId: string, eventIds: string[], client: Client = prisma) {
+  const rows = await client.checkIn.findMany({
+    where: { userId, eventId: { in: eventIds } },
+    select: { eventId: true },
+  });
+  return rows.map((r) => r.eventId);
+}
+
 export function countCheckIns(client: Client = prisma) {
   return client.checkIn.count();
 }

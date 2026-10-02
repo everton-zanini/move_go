@@ -18,6 +18,15 @@ export function updatePet(userId: string, data: Prisma.PetUncheckedUpdateInput, 
   });
 }
 
+/** Avança o marcador de eventos avaliados; retorna 0 se outra requisição já o avançou. */
+export async function claimMissedEventsWindow(userId: string, from: Date, to: Date, client: Client = prisma) {
+  const result = await client.pet.updateMany({
+    where: { userId, missedEventsCheckedAt: from },
+    data: { missedEventsCheckedAt: to },
+  });
+  return result.count;
+}
+
 export function createPet(data: Prisma.PetUncheckedCreateInput, client: Client = prisma) {
   return client.pet.create({ data, include: { currentEvolution: true } });
 }

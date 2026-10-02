@@ -139,6 +139,8 @@ model Pet {
   currentStreak      Int       @default(0)
   longestStreak      Int       @default(0)
   lastCheckInAt      DateTime?
+  // Marca até quando eventos encerrados já foram avaliados para perda de energia/felicidade.
+  missedEventsCheckedAt DateTime @default(now())
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 

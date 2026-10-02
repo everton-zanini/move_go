@@ -15,8 +15,8 @@ export const GAME_RULE_KEYS = {
   checkinGraceMinutesAfter: "checkin.graceMinutesAfter",
   petEnergyPerCheckIn: "pet.energyPerCheckIn",
   petHappinessPerCheckIn: "pet.happinessPerCheckIn",
-  petEnergyDecayPerDay: "pet.energyDecayPerDay",
-  petHappinessDecayPerDay: "pet.happinessDecayPerDay",
+  petEnergyLossPerMissedEvent: "pet.energyLossPerMissedEvent",
+  petHappinessLossPerMissedEvent: "pet.happinessLossPerMissedEvent",
   petMaxEnergy: "pet.maxEnergy",
   petMaxHappiness: "pet.maxHappiness",
 } as const;
@@ -80,14 +80,14 @@ export const GAME_RULES_DEFAULTS: GameRuleDefault[] = [
     description: "Felicidade ganha por check-in",
   },
   {
-    key: GAME_RULE_KEYS.petEnergyDecayPerDay,
-    value: 5,
-    description: "Decaimento diário de energia sem check-in",
+    key: GAME_RULE_KEYS.petEnergyLossPerMissedEvent,
+    value: 10,
+    description: "Energia perdida por evento perdido (sem check-in)",
   },
   {
-    key: GAME_RULE_KEYS.petHappinessDecayPerDay,
-    value: 5,
-    description: "Decaimento diário de felicidade sem check-in",
+    key: GAME_RULE_KEYS.petHappinessLossPerMissedEvent,
+    value: 10,
+    description: "Felicidade perdida por evento perdido (sem check-in)",
   },
   {
     key: GAME_RULE_KEYS.petMaxEnergy,
