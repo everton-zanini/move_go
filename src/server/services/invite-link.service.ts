@@ -15,6 +15,7 @@ import {
   updateInviteLink as updateInviteLinkRepo,
 } from "@/server/repositories/invite-link.repository";
 import { buildInviteUrl, generateQrPng } from "@/lib/qrcode/generate";
+import { getAppBaseUrl } from "@/lib/app-url";
 import type { InviteLinkFormInput } from "@/server/dto/invite-link.dto";
 
 export async function listInviteLinks() {
@@ -86,6 +87,6 @@ export async function validateInviteToken(token: string) {
 
 export async function getInviteQrCodeImage(id: string) {
   const link = await getInviteLinkById(id);
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const baseUrl = await getAppBaseUrl();
   return generateQrPng(buildInviteUrl(baseUrl, link.token));
 }
