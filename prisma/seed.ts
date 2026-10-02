@@ -87,6 +87,26 @@ async function seedPetSpecies() {
     });
   }
   console.log(`✓ PetSpecies "Tide" com ${tideEvolutions.length} evoluções seedadas`);
+
+  const igneo = await prisma.petSpecies.upsert({
+    where: { name: "Ígneo" },
+    update: {},
+    create: { name: "Ígneo", description: "Uma salamandra de fogo amigável que cresce a cada culto e evento." },
+  });
+  const igneoEvolutions = [
+    { levelRequired: 2, name: "Rise", sprite: "igneo_rise" },
+    { levelRequired: 5, name: "Surge", sprite: "igneo_surge" },
+    { levelRequired: 10, name: "Ascend", sprite: "igneo_ascend" },
+    { levelRequired: 20, name: "Apex", sprite: "igneo_apex" },
+  ];
+  for (const evo of igneoEvolutions) {
+    await prisma.petEvolution.upsert({
+      where: { speciesId_levelRequired: { speciesId: igneo.id, levelRequired: evo.levelRequired } },
+      update: { name: evo.name, sprite: evo.sprite },
+      create: { speciesId: igneo.id, ...evo },
+    });
+  }
+  console.log(`✓ PetSpecies "Ígneo" com ${igneoEvolutions.length} evoluções seedadas`);
   return species;
 }
 
