@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth, signOut } from "@/server/auth/auth";
+import { isUserActive } from "@/server/auth/active";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallButton } from "@/components/layout/InstallButton";
 
@@ -9,6 +10,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!session?.user) {
     redirect("/login");
+  }
+  if (!(await isUserActive(session.user.id))) {
+    redirect("/api/session-ended");
   }
 
   return (

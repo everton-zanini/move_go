@@ -18,6 +18,10 @@ export function createUser(
   return client.user.create({ data });
 }
 
+export function setUserActive(id: string, active: boolean) {
+  return prisma.user.update({ where: { id }, data: { active } });
+}
+
 export function countUsers() {
   return prisma.user.count();
 }

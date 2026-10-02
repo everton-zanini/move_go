@@ -1,6 +1,8 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { redirect } from "next/navigation";
 import { auth } from "@/server/auth/auth";
+import { isUserActive } from "@/server/auth/active";
 import { validateToken } from "@/server/services/event.service";
 import { findCheckIn } from "@/server/repositories/checkin.repository";
 import { EventNotFoundError } from "@/server/errors";
@@ -36,6 +38,9 @@ export default async function CheckInPage({ params }: { params: Promise<{ token:
   }
 
   const session = await auth();
+  if (session?.user && !(await isUserActive(session.user.id))) {
+    redirect("/api/session-ended");
+  }
   const existingCheckIn = session?.user ? await findCheckIn(session.user.id, event.id) : null;
 
   return (

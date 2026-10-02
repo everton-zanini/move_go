@@ -1,3 +1,5 @@
+import { ConfirmSubmitButton } from "@/components/ui/ConfirmSubmitButton";
+import { toggleUserActiveAction } from "./actions";
 import { listUsers } from "@/server/repositories/user.repository";
 
 export default async function AdminUsersPage() {
@@ -15,6 +17,8 @@ export default async function AdminUsersPage() {
               <th className="px-3 py-2">Nível</th>
               <th className="px-3 py-2">XP</th>
               <th className="px-3 py-2">Check-ins</th>
+              <th className="px-3 py-2">Status</th>
+              <th className="px-3 py-2">Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -25,11 +29,25 @@ export default async function AdminUsersPage() {
                 <td className="px-3 py-2">{u.pet?.level ?? "—"}</td>
                 <td className="px-3 py-2">{u.pet?.totalXp ?? "—"}</td>
                 <td className="px-3 py-2">{u._count.checkIns}</td>
+                <td className="px-3 py-2">
+                  <span className={u.active ? "text-emerald-400" : "text-white/65"}>
+                    {u.active ? "Ativo" : "Inativo"}
+                  </span>
+                </td>
+                <td className="px-3 py-2">
+                  <form action={toggleUserActiveAction.bind(null, u.id)}>
+                    <ConfirmSubmitButton
+                      label={u.active ? "Desativar" : "Ativar"}
+                      confirmMessage={`${u.active ? "Desativar" : "Ativar"} o usuário "${u.name}"?`}
+                      className="text-white/60 underline underline-offset-2"
+                    />
+                  </form>
+                </td>
               </tr>
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-3 py-4 text-center text-white/65">
+                <td colSpan={7} className="px-3 py-4 text-center text-white/65">
                   Nenhum usuário cadastrado.
                 </td>
               </tr>

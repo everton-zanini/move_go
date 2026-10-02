@@ -26,7 +26,8 @@ export async function loginAction(_prevState: LoginState, formData: FormData): P
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: "Email ou senha inválidos." };
+      const code = (error as { code?: string }).code;
+      return { error: code === "inactive" ? "Sua conta está desativada. Fale com um administrador." : "Email ou senha inválidos." };
     }
     throw error;
   }

@@ -1,12 +1,16 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth, signOut } from "@/server/auth/auth";
+import { isUserActive } from "@/server/auth/active";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
 
   if (!session?.user) {
     redirect("/login");
+  }
+  if (!(await isUserActive(session.user.id))) {
+    redirect("/api/session-ended");
   }
   if (session.user.role !== "ADMIN") {
     redirect("/");

@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/server/auth/auth";
+import { isUserActive } from "@/server/auth/active";
 import { performCheckIn, type CheckInResult } from "@/server/services/checkin.service";
 import { DomainError, UnauthenticatedError } from "@/server/errors";
 
@@ -21,6 +22,9 @@ export async function performCheckInAction(
   const session = await auth();
   if (!session?.user) {
     throw new UnauthenticatedError();
+  }
+  if (!(await isUserActive(session.user.id))) {
+    return { status: "error", message: "Sua conta está desativada." };
   }
 
   try {

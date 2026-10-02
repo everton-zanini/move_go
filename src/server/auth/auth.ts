@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/db/prisma";
@@ -6,6 +6,10 @@ import { findUserByEmail } from "@/server/repositories/user.repository";
 import { loginSchema } from "@/server/dto/auth.dto";
 import authConfig from "./auth.config";
 import { verifyPassword } from "./password";
+
+class InactiveUserError extends CredentialsSignin {
+  code = "inactive";
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -26,6 +30,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const isValid = await verifyPassword(parsed.data.password, user.passwordHash);
         if (!isValid) return null;
+        if (!user.active) throw new InactiveUserError();
 
         return { id: user.id, name: user.name, email: user.email, role: user.role };
       },
