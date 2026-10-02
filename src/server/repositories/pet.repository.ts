@@ -42,6 +42,10 @@ export function listEvolutions(speciesId: string, client: Client = prisma) {
   return client.petEvolution.findMany({ where: { speciesId }, orderBy: { levelRequired: "asc" } });
 }
 
+export function listSpecies(client: Client = prisma) {
+  return client.petSpecies.findMany({ orderBy: { createdAt: "asc" } });
+}
+
 export function findDefaultSpecies(client: Client = prisma) {
   return client.petSpecies.findFirst({ orderBy: { createdAt: "asc" } });
 }

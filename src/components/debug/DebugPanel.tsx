@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import {
   debugAddXpAction,
+  debugRedoLineChoiceAction,
   debugResetPetAction,
   debugUnlockFoneAction,
   debugUnlockOculosAction,
@@ -14,10 +15,11 @@ const initialState: DebugActionState = {};
 export function DebugPanel() {
   const [xpState, xpAction, xpPending] = useActionState(debugAddXpAction, initialState);
   const [resetState, resetAction, resetPending] = useActionState(debugResetPetAction, initialState);
+  const [lineState, lineAction, linePending] = useActionState(debugRedoLineChoiceAction, initialState);
   const [foneState, foneAction, fonePending] = useActionState(debugUnlockFoneAction, initialState);
   const [oculosState, oculosAction, oculosPending] = useActionState(debugUnlockOculosAction, initialState);
 
-  const message = xpState.message ?? resetState.message ?? foneState.message ?? oculosState.message;
+  const message = xpState.message ?? resetState.message ?? lineState.message ?? foneState.message ?? oculosState.message;
 
   return (
     <div className="flex w-full max-w-xs flex-col items-center gap-2 rounded-lg border border-dashed border-yellow-400/40 p-3">
@@ -46,6 +48,15 @@ export function DebugPanel() {
             className="rounded-lg bg-red-400/20 px-3 py-2 text-xs font-semibold text-red-200 disabled:opacity-60"
           >
             {resetPending ? "..." : "♻️ Resetar pet"}
+          </button>
+        </form>
+        <form action={lineAction}>
+          <button
+            type="submit"
+            disabled={linePending}
+            className="rounded-lg bg-yellow-400/20 px-3 py-2 text-xs font-semibold text-yellow-200 disabled:opacity-60"
+          >
+            {linePending ? "..." : "🐺 Refazer escolha de linha"}
           </button>
         </form>
         <form action={foneAction}>

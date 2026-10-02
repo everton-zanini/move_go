@@ -4,7 +4,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/server/auth/auth";
 import { petNicknameSchema } from "@/server/dto/pet.dto";
-import { debugAddXpToNextEvolution, debugResetPet, renamePet } from "@/server/services/pet.service";
+import {
+  debugAddXpToNextEvolution,
+  debugRedoLineChoice,
+  debugResetPet,
+  renamePet,
+} from "@/server/services/pet.service";
 import { debugGrantItemByName } from "@/server/services/inventory.service";
 import { resolveShortCode } from "@/server/services/event.service";
 import { DomainError, UnauthenticatedError } from "@/server/errors";
@@ -25,7 +30,10 @@ export async function renamePetAction(_prevState: PetNameState, formData: FormDa
     throw new UnauthenticatedError();
   }
 
-  const parsed = petNicknameSchema.safeParse({ nickname: formData.get("nickname") });
+  const parsed = petNicknameSchema.safeParse({
+    nickname: formData.get("nickname"),
+    speciesId: formData.get("speciesId"),
+  });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Nome inválido." };
   }
@@ -88,6 +96,16 @@ export async function debugResetPetAction(
   await debugResetPet(session.user.id);
   revalidatePath("/");
   return { message: "Pet resetado para o estágio inicial." };
+}
+
+export async function debugRedoLineChoiceAction(
+  _prevState: DebugActionState,
+  _formData: FormData
+): Promise<DebugActionState> {
+  const session = await requireAdmin();
+  await debugRedoLineChoice(session.user.id);
+  revalidatePath("/");
+  return { message: "Nome e linha limpos — escolha de novo na tela inicial." };
 }
 
 export async function debugUnlockFoneAction(

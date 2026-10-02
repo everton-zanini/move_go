@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const petNicknameSchema = z.object({
+  speciesId: z.string().min(1, "Escolha uma linha evolutiva."),
   nickname: z
     .string()
     .trim()

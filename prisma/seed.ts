@@ -46,6 +46,27 @@ async function seedPetSpecies() {
     });
   }
   console.log(`✓ PetSpecies "Movinho" com ${evolutions.length} evoluções seedadas`);
+
+  // Segunda linha: o ovo (nível 1) é compartilhado, então o Lobo começa no nível 2.
+  const wolf = await prisma.petSpecies.upsert({
+    where: { name: "Lobo" },
+    update: {},
+    create: { name: "Lobo", description: "Um lobo amigável que cresce a cada culto e evento." },
+  });
+  const wolfEvolutions = [
+    { levelRequired: 2, name: "Rise", sprite: "wolf_rise" },
+    { levelRequired: 5, name: "Surge", sprite: "wolf_surge" },
+    { levelRequired: 10, name: "Ascend", sprite: "wolf_ascend" },
+    { levelRequired: 20, name: "Apex", sprite: "wolf_apex" },
+  ];
+  for (const evo of wolfEvolutions) {
+    await prisma.petEvolution.upsert({
+      where: { speciesId_levelRequired: { speciesId: wolf.id, levelRequired: evo.levelRequired } },
+      update: { name: evo.name, sprite: evo.sprite },
+      create: { speciesId: wolf.id, ...evo },
+    });
+  }
+  console.log(`✓ PetSpecies "Lobo" com ${wolfEvolutions.length} evoluções seedadas`);
   return species;
 }
 

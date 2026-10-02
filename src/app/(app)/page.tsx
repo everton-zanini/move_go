@@ -1,6 +1,6 @@
 import { auth } from "@/server/auth/auth";
 import { findPetByUserId } from "@/server/repositories/pet.repository";
-import { applyMissedEventPenalties } from "@/server/services/pet.service";
+import { applyMissedEventPenalties, listSelectableLines } from "@/server/services/pet.service";
 import { getLevelCurveParams } from "@/server/services/config.service";
 import { listInventory } from "@/server/services/inventory.service";
 import { xpProgressForLevel } from "@/lib/game/level-curve";
@@ -35,6 +35,7 @@ export default async function HomePage() {
   const stageName = pet.currentEvolution?.name ?? "Spark";
   const hasHatched = (pet.currentEvolution?.levelRequired ?? 1) > 1;
   const needsName = hasHatched && !pet.nickname;
+  const lines = needsName ? await listSelectableLines(pet.level) : [];
 
   return (
     <div className="flex flex-1 flex-col items-center gap-6 px-6 py-8">
@@ -59,7 +60,7 @@ export default async function HomePage() {
 
       <PetSprite spriteKey={pet.currentEvolution?.sprite ?? "egg"} equippedItemSpriteKeys={equippedItemSpriteKeys} />
 
-      {needsName && <PetNameForm />}
+      {needsName && <PetNameForm lines={lines} />}
 
       <div className="w-full max-w-xs text-center">
         <p className="text-sm text-white/70">

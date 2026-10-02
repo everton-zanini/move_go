@@ -5,6 +5,7 @@ import {
   findEvolutionForLevel,
   findPetByUserId,
   listEvolutions,
+  listSpecies,
   updatePet,
 } from "@/server/repositories/pet.repository";
 import { NotFoundError } from "@/server/errors";
@@ -17,13 +18,41 @@ import { getConfigValue, getLevelCurveParams } from "./config.service";
 import { addXp } from "./xp.service";
 import { recalculateEvolution } from "./pet-evolution.service";
 
+export interface SelectableLine {
+  speciesId: string;
+  speciesName: string;
+  spriteKey: string;
+}
+
+/** Linhas evolutivas que já têm um estágio para o nível atual — o ovo (nível 1) é compartilhado. */
+export async function listSelectableLines(level: number): Promise<SelectableLine[]> {
+  const species = await listSpecies();
+  const lines = await Promise.all(
+    species.map(async (s) => {
+      const evolution = await findEvolutionForLevel(s.id, level);
+      return evolution ? { speciesId: s.id, speciesName: s.name, spriteKey: evolution.sprite } : null;
+    })
+  );
+  return lines.filter((line): line is SelectableLine => line !== null);
+}
+
+/** Define o nome e a linha evolutiva do pet (troca a espécie e o estágio atual de uma vez). */
 export async function renamePet(userId: string, input: PetNicknameInput) {
   const pet = await findPetByUserId(userId);
   if (!pet) {
     throw new NotFoundError("Pet não encontrado para este usuário.");
   }
 
-  return updatePet(userId, { nickname: input.nickname });
+  const evolution = await findEvolutionForLevel(input.speciesId, pet.level);
+  if (!evolution || evolution.speciesId !== input.speciesId) {
+    throw new NotFoundError("Linha evolutiva indisponível para este nível.");
+  }
+
+  return updatePet(userId, {
+    nickname: input.nickname,
+    speciesId: input.speciesId,
+    currentEvolutionId: evolution.id,
+  });
 }
 
 export interface MissedEventsResult {
@@ -130,8 +159,10 @@ export async function debugResetPet(userId: string) {
       throw new NotFoundError("Pet não encontrado para este usuário.");
     }
 
-    const firstEvolution = await findEvolutionForLevel(pet.speciesId, 1, tx);
-    if (!firstEvolution) {
+    // Volta para a espécie padrão (dona do ovo), já que o ovo não existe nas outras linhas.
+    const defaultSpecies = await findDefaultSpecies(tx);
+    const firstEvolution = defaultSpecies ? await findEvolutionForLevel(defaultSpecies.id, 1, tx) : null;
+    if (!defaultSpecies || !firstEvolution) {
       throw new NotFoundError("Nenhuma evolução configurada para o nível 1.");
     }
 
@@ -146,8 +177,31 @@ export async function debugResetPet(userId: string) {
         longestStreak: 0,
         lastCheckInAt: null,
         nickname: null,
+        speciesId: defaultSpecies.id,
         currentEvolutionId: firstEvolution.id,
       },
+      tx
+    );
+  });
+}
+
+/** DEBUG (admin): limpa nome e linha mantendo o nível, pra retestar a escolha de linha evolutiva. */
+export async function debugRedoLineChoice(userId: string) {
+  return prisma.$transaction(async (tx) => {
+    const pet = await findPetByUserId(userId, tx);
+    if (!pet) {
+      throw new NotFoundError("Pet não encontrado para este usuário.");
+    }
+
+    const defaultSpecies = await findDefaultSpecies(tx);
+    const evolution = defaultSpecies ? await findEvolutionForLevel(defaultSpecies.id, pet.level, tx) : null;
+    if (!defaultSpecies || !evolution) {
+      throw new NotFoundError("Nenhuma evolução configurada para este nível.");
+    }
+
+    return updatePet(
+      userId,
+      { nickname: null, speciesId: defaultSpecies.id, currentEvolutionId: evolution.id },
       tx
     );
   });
