@@ -24,7 +24,7 @@ export function PetNameForm({ lines }: { lines: SelectableLine[] }) {
       <form action={formAction} className="mt-3 flex flex-col gap-3">
         <input type="hidden" name="speciesId" value={selectedId} />
 
-        <div className="flex justify-center gap-3">
+        <div className="flex flex-wrap justify-center gap-2">
           {lines.map((line) => {
             const selected = line.speciesId === selectedId;
             return (

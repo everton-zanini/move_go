@@ -47,5 +47,9 @@ export function listSpecies(client: Client = prisma) {
 }
 
 export function findDefaultSpecies(client: Client = prisma) {
-  return client.petSpecies.findFirst({ orderBy: { createdAt: "asc" } });
+  // A espécie padrão é a dona do ovo (nível 1) — as demais linhas só começam depois dele.
+  return client.petSpecies.findFirst({
+    where: { evolutions: { some: { levelRequired: 1 } } },
+    orderBy: { createdAt: "asc" },
+  });
 }

@@ -21,10 +21,10 @@ async function seedConfig() {
 
 async function seedPetSpecies() {
   const species = await prisma.petSpecies.upsert({
-    where: { name: "Movinho" },
+    where: { name: "Gust" },
     update: {},
     create: {
-      name: "Movinho",
+      name: "Gust",
       description: "A espécie padrão de pet do MoveGO — cresce a cada culto e evento em que o jovem participa.",
     },
   });
@@ -45,13 +45,13 @@ async function seedPetSpecies() {
       create: { speciesId: species.id, ...evo },
     });
   }
-  console.log(`✓ PetSpecies "Movinho" com ${evolutions.length} evoluções seedadas`);
+  console.log(`✓ PetSpecies "Gust" com ${evolutions.length} evoluções seedadas`);
 
   // Segunda linha: o ovo (nível 1) é compartilhado, então o Lobo começa no nível 2.
   const wolf = await prisma.petSpecies.upsert({
-    where: { name: "Lobo" },
+    where: { name: "Roam" },
     update: {},
-    create: { name: "Lobo", description: "Um lobo amigável que cresce a cada culto e evento." },
+    create: { name: "Roam", description: "Um lobo amigável que cresce a cada culto e evento." },
   });
   const wolfEvolutions = [
     { levelRequired: 2, name: "Rise", sprite: "wolf_rise" },
@@ -66,7 +66,27 @@ async function seedPetSpecies() {
       create: { speciesId: wolf.id, ...evo },
     });
   }
-  console.log(`✓ PetSpecies "Lobo" com ${wolfEvolutions.length} evoluções seedadas`);
+  console.log(`✓ PetSpecies "Roam" com ${wolfEvolutions.length} evoluções seedadas`);
+
+  const tide = await prisma.petSpecies.upsert({
+    where: { name: "Tide" },
+    update: {},
+    create: { name: "Tide", description: "Uma tartaruga marinha amigável que cresce a cada culto e evento." },
+  });
+  const tideEvolutions = [
+    { levelRequired: 2, name: "Rise", sprite: "tide_rise" },
+    { levelRequired: 5, name: "Surge", sprite: "tide_surge" },
+    { levelRequired: 10, name: "Ascend", sprite: "tide_ascend" },
+    { levelRequired: 20, name: "Apex", sprite: "tide_apex" },
+  ];
+  for (const evo of tideEvolutions) {
+    await prisma.petEvolution.upsert({
+      where: { speciesId_levelRequired: { speciesId: tide.id, levelRequired: evo.levelRequired } },
+      update: { name: evo.name, sprite: evo.sprite },
+      create: { speciesId: tide.id, ...evo },
+    });
+  }
+  console.log(`✓ PetSpecies "Tide" com ${tideEvolutions.length} evoluções seedadas`);
   return species;
 }
 

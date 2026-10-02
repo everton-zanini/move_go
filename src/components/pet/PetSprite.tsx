@@ -15,6 +15,10 @@ const SPRITE_IMAGES: Record<string, string> = {
   wolf_surge: "/pet/wolf-surge.png",
   wolf_ascend: "/pet/wolf-ascend.png",
   wolf_apex: "/pet/wolf-apex.png",
+  tide_rise: "/pet/tide-rise.png",
+  tide_surge: "/pet/tide-surge.png",
+  tide_ascend: "/pet/tide-ascend.png",
+  tide_apex: "/pet/tide-apex.png",
 };
 
 /**
@@ -58,7 +62,7 @@ export function PetSprite({
   const frameSize = size === "lg" ? "h-48 w-48" : "h-24 w-24";
   // Apex ganha mais destaque: preenche a moldura inteira, as outras fases sobram uma margem.
   const artSize =
-    spriteKey === "special" || spriteKey === "wolf_apex"
+    spriteKey === "special" || spriteKey === "wolf_apex" || spriteKey === "tide_apex"
       ? size === "lg"
         ? "h-48 w-48"
         : "h-24 w-24"
