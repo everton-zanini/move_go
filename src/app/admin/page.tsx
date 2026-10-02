@@ -7,6 +7,7 @@ import {
   listRecentCheckIns,
 } from "@/server/repositories/checkin.repository";
 import { findCurrentOrNextEvent } from "@/server/repositories/event.repository";
+import { listEvolutionXpTable } from "@/server/services/pet.service";
 
 function MetricCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -19,12 +20,13 @@ function MetricCard({ label, value }: { label: string; value: string | number })
 
 export default async function AdminDashboardPage() {
   const now = new Date();
-  const [totalUsers, totalCheckIns, activeUsers, currentEvent, recentCheckIns] = await Promise.all([
+  const [totalUsers, totalCheckIns, activeUsers, currentEvent, recentCheckIns, evolutionTable] = await Promise.all([
     countUsers(),
     countCheckIns(),
     countDistinctCheckedInUsers(),
     findCurrentOrNextEvent(now),
     listRecentCheckIns(10),
+    listEvolutionXpTable(),
   ]);
 
   return (
@@ -36,6 +38,39 @@ export default async function AdminDashboardPage() {
         <MetricCard label="Check-ins" value={totalCheckIns} />
         <MetricCard label="Usuários ativos" value={activeUsers} />
         <MetricCard label="Evento atual" value={currentEvent?.name ?? "—"} />
+      </div>
+
+      <div>
+        <h2 className="mb-2 text-sm font-semibold text-white/70">XP por fase de evolução</h2>
+        <div className="overflow-x-auto rounded-lg border border-white/10">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-white/5 text-white/50">
+              <tr>
+                <th className="px-3 py-2">Fase</th>
+                <th className="px-3 py-2">Nível</th>
+                <th className="px-3 py-2">XP total</th>
+                <th className="px-3 py-2">XP desde a fase anterior</th>
+              </tr>
+            </thead>
+            <tbody>
+              {evolutionTable.map((row) => (
+                <tr key={row.id} className="border-t border-white/5">
+                  <td className="px-3 py-2">{row.name}</td>
+                  <td className="px-3 py-2">{row.levelRequired}</td>
+                  <td className="px-3 py-2">{row.totalXp}</td>
+                  <td className="px-3 py-2 text-white/60">{row.xpFromPrevious}</td>
+                </tr>
+              ))}
+              {evolutionTable.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-3 py-4 text-center text-white/65">
+                    Nenhuma fase configurada.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div>

@@ -1,5 +1,11 @@
 import { prisma } from "@/lib/db/prisma";
-import { findEvolutionForLevel, findPetByUserId, updatePet } from "@/server/repositories/pet.repository";
+import {
+  findDefaultSpecies,
+  findEvolutionForLevel,
+  findPetByUserId,
+  listEvolutions,
+  updatePet,
+} from "@/server/repositories/pet.repository";
 import { NotFoundError } from "@/server/errors";
 import type { PetNicknameInput } from "@/server/dto/pet.dto";
 import { xpRequiredForLevel } from "@/lib/game/level-curve";
@@ -14,6 +20,27 @@ export async function renamePet(userId: string, input: PetNicknameInput) {
   }
 
   return updatePet(userId, { nickname: input.nickname });
+}
+
+/** XP total necessário para alcançar cada estágio de evolução da espécie padrão. */
+export async function listEvolutionXpTable() {
+  const species = await findDefaultSpecies();
+  if (!species) return [];
+
+  const [evolutions, curve] = await Promise.all([listEvolutions(species.id), getLevelCurveParams()]);
+  let previousXp = 0;
+  return evolutions.map((evolution) => {
+    const totalXp = xpRequiredForLevel(evolution.levelRequired, curve);
+    const row = {
+      id: evolution.id,
+      name: evolution.name,
+      levelRequired: evolution.levelRequired,
+      totalXp,
+      xpFromPrevious: totalXp - previousXp,
+    };
+    previousXp = totalXp;
+    return row;
+  });
 }
 
 /** DEBUG (admin): soma XP suficiente pra cruzar o próximo estágio de evolução configurado. */
