@@ -11,7 +11,7 @@ const SPRITE_IMAGES: Record<string, string> = {
   young: "/pet/young.png",
   adult: "/pet/adult.png",
   special: "/pet/special.png",
-  wolf_rise: "/pet/wolf-rise.png",
+  wolf_rise: "/pet/wolf-rise-v2.png",
   wolf_surge: "/pet/wolf-surge.png",
   wolf_ascend: "/pet/wolf-ascend.png",
   wolf_apex: "/pet/wolf-apex.png",
