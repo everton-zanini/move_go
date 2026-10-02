@@ -1,12 +1,17 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { toast } from "@/components/ui/Toaster";
 import { renamePetAction, type PetNameState } from "@/app/(app)/actions";
 
 const initialState: PetNameState = {};
 
 export function PetNameForm() {
   const [state, formAction, isPending] = useActionState(renamePetAction, initialState);
+
+  useEffect(() => {
+    if (state?.saved) toast("Nome do pet salvo!");
+  }, [state]);
 
   return (
     <div className="w-full max-w-xs rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-4 text-center">

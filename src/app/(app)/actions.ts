@@ -17,7 +17,7 @@ async function requireAdmin() {
   return session;
 }
 
-export type PetNameState = { error?: string };
+export type PetNameState = { error?: string; saved?: boolean };
 
 export async function renamePetAction(_prevState: PetNameState, formData: FormData): Promise<PetNameState> {
   const session = await auth();
@@ -40,7 +40,7 @@ export async function renamePetAction(_prevState: PetNameState, formData: FormDa
   }
 
   revalidatePath("/");
-  return {};
+  return { saved: true };
 }
 
 export type CheckInCodeState = { error?: string };
