@@ -4,7 +4,7 @@ import authConfig from "@/server/auth/auth.config";
 // Instância leve (sem PrismaAdapter) para rodar no runtime Edge do proxy.
 const { auth } = NextAuth(authConfig);
 
-const PUBLIC_ROUTES = ["/login", "/register"];
+const PUBLIC_ROUTES = ["/login", "/register", "/invite"];
 // Sempre acessível, independente de sessão — a página servida pelo service
 // worker quando o dispositivo está offline (ver src/app/sw.ts).
 const ALWAYS_PUBLIC_ROUTES = ["/~offline"];
