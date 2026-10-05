@@ -17,11 +17,17 @@ async function main() {
     throw new Error("A senha precisa ter pelo menos 8 caracteres.");
   }
 
+  // Não converte conta de jogador/admin de igreja: ela perderia a igreja (e o pet deixaria de ser usado).
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing && existing.role !== "SUPER_ADMIN") {
+    throw new Error(`Já existe uma conta ${existing.role} com este email. Use outro email para o super-admin.`);
+  }
+
   const passwordHash = await bcrypt.hash(password, 10);
   // Super-admin não pertence a nenhuma igreja (churchId null).
   const user = await prisma.user.upsert({
     where: { email },
-    update: { role: "SUPER_ADMIN", churchId: null, passwordHash, active: true },
+    update: { passwordHash, active: true },
     create: { name: "Super Admin", email, passwordHash, role: "SUPER_ADMIN" },
   });
   console.log(`✓ Super-admin pronto: ${user.email}`);

@@ -9,13 +9,13 @@ const PUBLIC_ROUTES = ["/login", "/register", "/invite", "/platform/login"];
 // worker quando o dispositivo está offline (ver src/app/sw.ts).
 const ALWAYS_PUBLIC_ROUTES = ["/~offline"];
 
-// Role aqui vem do JWT. Checagens de ADMIN de igreja ficam nos layouts/actions (lidas do banco),
-// porque promoção/rebaixamento precisa valer sem relogar. SUPER_ADMIN não muda, então dá pra separar aqui.
+// O proxy só checa se há sessão. Decisões por role ficam nos layouts/actions, lidas do banco:
+// o role do JWT pode estar desatualizado (promoção, rebaixamento) e redirecionar por ele aqui
+// enquanto o layout redireciona pelo banco gera loop infinito de redirect.
 export default auth((req) => {
   const { nextUrl } = req;
   const { pathname } = nextUrl;
   const isLoggedIn = !!req.auth;
-  const isSuperAdmin = req.auth?.user?.role === "SUPER_ADMIN";
   const isPlatformRoute = pathname === "/platform" || pathname.startsWith("/platform/");
 
   if (ALWAYS_PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
@@ -26,7 +26,8 @@ export default auth((req) => {
 
   if (isPublicRoute) {
     if (isLoggedIn) {
-      return Response.redirect(new URL(isSuperAdmin ? "/platform" : "/", nextUrl));
+      // "/" manda o super-admin para /platform via (app)/layout.tsx.
+      return Response.redirect(new URL("/", nextUrl));
     }
     return;
   }
@@ -35,15 +36,6 @@ export default auth((req) => {
     const callbackUrl = encodeURIComponent(pathname + nextUrl.search);
     const loginPath = isPlatformRoute ? "/platform/login" : "/login";
     return Response.redirect(new URL(`${loginPath}?callbackUrl=${callbackUrl}`, nextUrl));
-  }
-
-  if (isPlatformRoute && !isSuperAdmin) {
-    return Response.redirect(new URL("/", nextUrl));
-  }
-
-  // Super-admin não pertence a nenhuma igreja: fica restrito ao painel da plataforma.
-  if (!isPlatformRoute && isSuperAdmin && !pathname.startsWith("/api/")) {
-    return Response.redirect(new URL("/platform", nextUrl));
   }
 
   return;
