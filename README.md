@@ -2,7 +2,7 @@
 
 **Faça check-in. Ganhe XP. Evolua. 🚀**
 
-PWA de gamificação do **Move Santana** (ministério de jovens da Igreja Verbo da Vida Santana). O jovem tem um pet virtual estilo Tamagotchi/pixel art que cresce por XP, ganho fazendo check-in via QR Code em cultos e eventos.
+PWA de gamificação para ministérios de jovens — nasceu no **Move Santana** (Igreja Verbo da Vida Santana) e hoje atende **várias igrejas isoladas** na mesma instalação. O jovem tem um pet virtual estilo Tamagotchi/pixel art que cresce por XP, ganho fazendo check-in via QR Code em cultos e eventos.
 
 > Status: **MVP completo (Fase 8/8)** — projeto, arquitetura, banco de dados, autenticação, pet/XP/evolução, check-in por QR Code, painel administrativo, inventário/conquistas, compartilhamento e PWA (ícones, offline, telas de erro estilizadas) já funcionando de ponta a ponta. Ver `.claude/plans` e seção "Roadmap" abaixo para o histórico de fases.
 
@@ -72,6 +72,7 @@ npm run db:down
 | `AUTH_SECRET` | Segredo usado pelo Auth.js para assinar sessões/JWT |
 | `NEXTAUTH_URL` | URL base da aplicação (usada pelo Auth.js) |
 | `NEXT_PUBLIC_APP_URL` | URL pública usada para montar os links de check-in dos QR Codes (`/checkin/[token]`) |
+| `SUPER_ADMIN_EMAIL` / `SUPER_ADMIN_PASSWORD` | Opcionais. Usadas só pelo seed e pelo `prisma/create-super-admin.ts` para criar o super-admin — **não precisam estar na Vercel** (o deploy não roda o seed) |
 
 ## Rodando localmente
 
@@ -92,15 +93,46 @@ npm run start
 
 O `prisma/seed.ts` cria:
 
-- 1 usuário admin (`admin@movesantana.com` / `movepet123` — **troque em produção**)
+- a igreja padrão **Move Santana** (`id: church-move-santana`, slug `move-santana`)
+- 1 usuário admin da Move Santana (`admin@movesantana.com` / `movepet123` — **troque em produção**)
+- 1 super-admin, apenas se `SUPER_ADMIN_EMAIL` e `SUPER_ADMIN_PASSWORD` estiverem definidos
 - 1 linhas de pet ("Gust", "Roam", "Tide" e "Ígneo"; ovo compartilhado) com 5 estágios de evolução (Spark → Rise → Surge → Ascend → Apex)
 - 4 itens de inventário (incluindo o item especial "Fone Adora")
 - 6 conquistas
 - 3 eventos de exemplo, cada um com um QR Code de teste (`/checkin/<token>`) — os tokens são impressos no console ao rodar `npx prisma db seed`
 
+## Multi-igreja (tenants)
+
+Cada igreja é um tenant isolado (model `Church`): **usuários, eventos, convites e check-ins pertencem a uma igreja**, e o admin de uma igreja não enxerga nada das outras. Espécies de pet, itens, conquistas e regras do jogo (`ConfigEntry`) são **globais**, compartilhados por todas.
+
+- **Papéis** (`Role`): `USER` (jogador), `ADMIN` (admin da sua igreja, inclusive com o painel de debug na home) e `SUPER_ADMIN` (administra a plataforma; não pertence a nenhuma igreja e não tem pet).
+- **Cadastro de jogador**: pelo link de convite (`/invite/[token]`) — o usuário entra na igreja dona do convite. O e-mail é único global: uma conta pertence a uma igreja só.
+- **Isolamento**: todo repository/service recebe `churchId`; buscas por id em fluxos de admin usam `{ id, churchId }`. QR Code ou código curto de outra igreja responde como "evento não encontrado".
+- **Promoção de admin**: em `/admin/users` o admin da igreja promove/rebaixa usuários da própria igreja. Ninguém altera o próprio papel e a igreja nunca fica sem pelo menos um admin ativo.
+- **Autorização lida do banco**: `src/server/auth/context.ts` (`getCurrentUser`, `requireMember`, `requireChurchAdmin`, `requireSuperAdmin`) — papel, igreja e status ativo podem mudar depois do login e valem na hora, sem relogar. O `src/proxy.ts` só verifica se há sessão; **nunca redirecione por role no proxy** (o role do JWT pode estar desatualizado e gerar loop de redirect com os layouts).
+
+### Painel da plataforma (`/platform`)
+
+Acesso separado, com login próprio em `/platform/login`, restrito a `SUPER_ADMIN`:
+
+- listar igrejas (usuários, eventos, status);
+- criar igreja já com o primeiro admin (nome, e-mail, senha inicial);
+- editar nome/identificador e ativar/desativar a igreja — **desativar** bloqueia login, derruba sessões abertas e invalida os convites dela;
+- ver os usuários de cada igreja, ativar/desativar, promover/rebaixar e adicionar novos admins.
+
+### Criando o super-admin
+
+Sem rodar o seed completo (útil em produção, onde o seed criaria eventos de exemplo):
+
+```bash
+SUPER_ADMIN_EMAIL="voce@dominio.com" SUPER_ADMIN_PASSWORD="senha-forte" npx tsx prisma/create-super-admin.ts
+```
+
+Para produção, carregue antes as variáveis de `DATABASE_URL`/`DIRECT_URL` de produção no shell (ex.: `set -a && . ./.env.production.local && set +a`). Rodar de novo com o mesmo e-mail só troca a senha. O script **recusa converter uma conta de jogador/admin já existente** — use um e-mail que ainda não tenha conta.
+
 ## Criando um novo evento e gerando seu QR Code
 
-No painel `/admin` (login com um usuário `role: ADMIN`, ex. `admin@movesantana.com`): `/admin/events/new` → preencher nome, descrição, data, horário de início/término e XP → salvar → você é redirecionado direto para `/admin/events/[id]/qrcode`, com o QR Code pronto para imprimir ou baixar (PNG), apontando para `NEXT_PUBLIC_APP_URL/checkin/<qrCodeToken>`.
+No painel `/admin` (login com um admin da igreja, ex. `admin@movesantana.com`; o evento é criado na igreja dele): `/admin/events/new` → preencher nome, descrição, data, horário de início/término e XP → salvar → você é redirecionado direto para `/admin/events/[id]/qrcode`, com o QR Code pronto para imprimir ou baixar (PNG), apontando para `NEXT_PUBLIC_APP_URL/checkin/<qrCodeToken>`.
 
 Em `/admin/events` também dá pra editar, ativar/desativar (recomendado ao encerrar um evento) e excluir — exclusão é bloqueada se o evento já tiver check-ins registrados (desative-o nesse caso).
 
@@ -120,6 +152,7 @@ Ver `.claude/skills/architecture/SKILL.md` para as convenções de camadas (UI �
 6. ✅ Inventário/conquistas (`InventoryService`, `AchievementService` — item especial do evento, desbloqueio automático por nível/quantidade de check-ins, avaliação de conquistas, tudo disparado dentro da mesma transação do check-in; `/inventory` e `/achievements` com dados reais, equipar/desequipar itens por slot)
 7. ✅ Compartilhamento (card visual gerado client-side com `html-to-image`, na tela de resultado do check-in — evolução/conquista/item têm prioridade sobre o check-in simples; usa a Web Share API nativa quando disponível — ótimo pra Instagram/WhatsApp — com fallback de download da imagem)
 8. ✅ PWA + refinamento visual (ícones reais 192/512 + maskable, fallback offline em `/~offline`, páginas 404/erro estilizadas, `trustHost` corrigido para funcionar em produção fora da Vercel, `robots.txt` bloqueando indexação — app privado — e ajustes de contraste; auditado com Lighthouse: Accessibility 100, Best Practices 100)
+9. ✅ Multi-igreja (tenants isolados por `churchId`, migration `add_churches` movendo os dados existentes para a Move Santana, promoção de admins por igreja e painel de super-admin em `/platform`)
 
 ## Ideias futuras (backlog)
 
@@ -131,3 +164,4 @@ Ver `.claude/skills/architecture/SKILL.md` para as convenções de camadas (UI �
 2. Configure as demais variáveis de ambiente do projeto na Vercel: `AUTH_SECRET` (gere um novo, não reuse o do `.env` local), `NEXTAUTH_URL`, `NEXT_PUBLIC_APP_URL` (a URL final do deploy) e `TZ=America/Sao_Paulo` (ver nota sobre fuso horário acima).
 3. Deploy normal via `vercel` CLI ou integração com o repositório Git — o script `vercel-build` do `package.json` já roda `prisma migrate deploy` automaticamente antes do build, então a Vercel detecta e usa esse script sozinha (convenção própria dela, não precisa configurar nada no painel). Novas migrations criadas depois são aplicadas automaticamente a cada deploy.
 4. No primeiro deploy, rode o seed uma vez contra produção: `DATABASE_URL=... DIRECT_URL=... npx prisma db seed` (localmente, apontando pras env vars de produção) — troque a senha do admin padrão (`admin@movesantana.com` / `movepet123`) logo em seguida, direto no banco.
+5. Crie o super-admin com `prisma/create-super-admin.ts` (ver "Criando o super-admin") e cadastre as demais igrejas pelo painel `/platform`.
