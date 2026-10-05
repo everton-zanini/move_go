@@ -2,11 +2,13 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { listEvents } from "@/server/services/event.service";
+import { requireChurchAdmin } from "@/server/auth/context";
 import { ConfirmSubmitButton } from "@/components/ui/ConfirmSubmitButton";
 import { toggleEventActiveAction, deleteEventAction } from "./actions";
 
 export default async function AdminEventsPage() {
-  const events = await listEvents();
+  const { churchId } = await requireChurchAdmin();
+  const events = await listEvents(churchId);
 
   return (
     <div className="flex flex-col gap-4">

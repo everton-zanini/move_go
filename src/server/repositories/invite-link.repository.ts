@@ -4,15 +4,15 @@ import type { Prisma } from "@prisma/client";
 type Client = typeof prisma | Prisma.TransactionClient;
 
 export function findInviteLinkByToken(token: string, client: Client = prisma) {
-  return client.inviteLink.findUnique({ where: { token } });
+  return client.inviteLink.findUnique({ where: { token }, include: { church: true } });
 }
 
-export function findInviteLinkById(id: string, client: Client = prisma) {
-  return client.inviteLink.findUnique({ where: { id } });
+export function findInviteLinkById(id: string, churchId: string, client: Client = prisma) {
+  return client.inviteLink.findFirst({ where: { id, churchId } });
 }
 
-export function listInviteLinks(client: Client = prisma) {
-  return client.inviteLink.findMany({ orderBy: { createdAt: "desc" } });
+export function listInviteLinks(churchId: string, client: Client = prisma) {
+  return client.inviteLink.findMany({ where: { churchId }, orderBy: { createdAt: "desc" } });
 }
 
 export function createInviteLink(data: Prisma.InviteLinkUncheckedCreateInput, client: Client = prisma) {

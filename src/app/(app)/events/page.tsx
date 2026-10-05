@@ -1,8 +1,10 @@
 import { listUpcomingEvents } from "@/server/services/event.service";
+import { requireMember } from "@/server/auth/context";
 import { EventBadge } from "@/components/events/EventBadge";
 
 export default async function EventsPage() {
-  const events = await listUpcomingEvents();
+  const { churchId } = await requireMember();
+  const events = await listUpcomingEvents(churchId);
 
   return (
     <div className="flex flex-1 flex-col gap-4 px-6 py-8">

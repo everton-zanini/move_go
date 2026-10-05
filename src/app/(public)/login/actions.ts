@@ -27,7 +27,9 @@ export async function loginAction(_prevState: LoginState, formData: FormData): P
   } catch (error) {
     if (error instanceof AuthError) {
       const code = (error as { code?: string }).code;
-      return { error: code === "inactive" ? "Sua conta está desativada. Fale com um administrador." : "Email ou senha inválidos." };
+      if (code === "inactive") return { error: "Sua conta está desativada. Fale com um administrador." };
+      if (code === "church_inactive") return { error: "O acesso da sua igreja está desativado." };
+      return { error: "Email ou senha inválidos." };
     }
     throw error;
   }

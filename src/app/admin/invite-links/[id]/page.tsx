@@ -1,16 +1,18 @@
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { getInviteLinkById } from "@/server/services/invite-link.service";
+import { requireChurchAdmin } from "@/server/auth/context";
 import { NotFoundError } from "@/server/errors";
 import { InviteLinkForm } from "../InviteLinkForm";
 import { updateInviteLinkAction } from "../actions";
 
 export default async function EditInviteLinkPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const { churchId } = await requireChurchAdmin();
 
   let link;
   try {
-    link = await getInviteLinkById(id);
+    link = await getInviteLinkById(id, churchId);
   } catch (error) {
     if (error instanceof NotFoundError) {
       notFound();

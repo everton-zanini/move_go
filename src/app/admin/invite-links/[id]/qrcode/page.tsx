@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getInviteLinkById } from "@/server/services/invite-link.service";
+import { requireChurchAdmin } from "@/server/auth/context";
 import { buildInviteUrl } from "@/lib/qrcode/generate";
 import { getAppBaseUrl } from "@/lib/app-url";
 import { NotFoundError } from "@/server/errors";
@@ -8,10 +9,11 @@ import { PrintButton } from "@/components/admin/PrintButton";
 
 export default async function InviteLinkQrCodePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const { churchId } = await requireChurchAdmin();
 
   let link;
   try {
-    link = await getInviteLinkById(id);
+    link = await getInviteLinkById(id, churchId);
   } catch (error) {
     if (error instanceof NotFoundError) {
       notFound();

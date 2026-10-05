@@ -1,4 +1,5 @@
 import { auth } from "@/server/auth/auth";
+import { requireMember } from "@/server/auth/context";
 import { findPetByUserId } from "@/server/repositories/pet.repository";
 import {
   applyMissedEventPenalties,
@@ -17,10 +18,9 @@ import { DebugPanel } from "@/components/debug/DebugPanel";
 
 export default async function HomePage() {
   const session = await auth();
+  const member = await requireMember();
   const penalty =
-    session?.user && session.user.role !== "ADMIN"
-      ? await applyMissedEventPenalties(session.user.id)
-      : null;
+    member.role !== "ADMIN" ? await applyMissedEventPenalties(member.userId, member.churchId) : null;
   const pet = session?.user ? await findPetByUserId(session.user.id) : null;
   const inventory = session?.user ? await listInventory(session.user.id) : [];
   const equippedItemSpriteKeys = inventory
@@ -64,7 +64,7 @@ export default async function HomePage() {
         </div>
       )}
 
-      {session?.user?.role === "ADMIN" && <DebugPanel />}
+      {member.role === "ADMIN" && <DebugPanel />}
 
       <CheckInModal />
 

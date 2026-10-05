@@ -17,6 +17,7 @@ export default {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.churchId = user.churchId;
       }
       return token;
     },
@@ -24,6 +25,7 @@ export default {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as Role;
+        session.user.churchId = (token.churchId as string | null) ?? null;
       }
       return session;
     },

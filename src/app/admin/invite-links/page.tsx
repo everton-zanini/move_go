@@ -2,11 +2,13 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { listInviteLinks } from "@/server/services/invite-link.service";
+import { requireChurchAdmin } from "@/server/auth/context";
 import { ConfirmSubmitButton } from "@/components/ui/ConfirmSubmitButton";
 import { toggleInviteLinkActiveAction, deleteInviteLinkAction } from "./actions";
 
 export default async function AdminInviteLinksPage() {
-  const links = await listInviteLinks();
+  const { churchId } = await requireChurchAdmin();
+  const links = await listInviteLinks(churchId);
 
   return (
     <div className="flex flex-col gap-4">

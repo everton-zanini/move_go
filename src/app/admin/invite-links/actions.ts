@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/server/auth/auth";
+import { requireChurchAdmin } from "@/server/auth/context";
 import { inviteLinkFormSchema } from "@/server/dto/invite-link.dto";
 import {
   createInviteLink,
@@ -15,18 +15,11 @@ import { DomainError } from "@/server/errors";
 
 export type InviteLinkFormState = { error?: string };
 
-async function requireAdmin() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") {
-    throw new DomainError("Acesso não autorizado.", "FORBIDDEN");
-  }
-}
-
 export async function createInviteLinkAction(
   _prevState: InviteLinkFormState,
   formData: FormData
 ): Promise<InviteLinkFormState> {
-  await requireAdmin();
+  const { churchId } = await requireChurchAdmin();
 
   const parsed = inviteLinkFormSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -35,7 +28,7 @@ export async function createInviteLinkAction(
 
   let link;
   try {
-    link = await createInviteLink(parsed.data);
+    link = await createInviteLink(churchId, parsed.data);
   } catch (error) {
     if (error instanceof DomainError) {
       return { error: error.message };
@@ -52,7 +45,7 @@ export async function updateInviteLinkAction(
   _prevState: InviteLinkFormState,
   formData: FormData
 ): Promise<InviteLinkFormState> {
-  await requireAdmin();
+  const { churchId } = await requireChurchAdmin();
 
   const parsed = inviteLinkFormSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -60,7 +53,7 @@ export async function updateInviteLinkAction(
   }
 
   try {
-    await updateInviteLink(id, parsed.data);
+    await updateInviteLink(id, churchId, parsed.data);
   } catch (error) {
     if (error instanceof DomainError) {
       return { error: error.message };
@@ -74,15 +67,15 @@ export async function updateInviteLinkAction(
 }
 
 export async function toggleInviteLinkActiveAction(id: string) {
-  await requireAdmin();
-  await toggleInviteLinkActive(id);
+  const { churchId } = await requireChurchAdmin();
+  await toggleInviteLinkActive(id, churchId);
   revalidatePath("/admin/invite-links");
   redirect(withFlash("/admin/invite-links", "Status do link alterado."));
 }
 
 export async function deleteInviteLinkAction(id: string) {
-  await requireAdmin();
-  await removeInviteLink(id);
+  const { churchId } = await requireChurchAdmin();
+  await removeInviteLink(id, churchId);
   revalidatePath("/admin/invite-links");
   redirect(withFlash("/admin/invite-links", "Link de cadastro excluído com sucesso."));
 }

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/server/auth/auth";
+import { requireChurchAdmin, requireMember } from "@/server/auth/context";
 import { petNicknameSchema } from "@/server/dto/pet.dto";
 import {
   debugAddXpToNextEvolution,
@@ -13,14 +14,6 @@ import {
 import { debugGrantItemByName } from "@/server/services/inventory.service";
 import { resolveShortCode } from "@/server/services/event.service";
 import { DomainError, UnauthenticatedError } from "@/server/errors";
-
-async function requireAdmin() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") {
-    throw new DomainError("Acesso não autorizado.", "FORBIDDEN");
-  }
-  return session;
-}
 
 export type PetNameState = { error?: string; saved?: boolean };
 
@@ -63,9 +56,11 @@ export async function resolveCheckInCodeAction(
     return { error: "Digite o código do evento." };
   }
 
+  const { churchId } = await requireMember();
+
   let event;
   try {
-    event = await resolveShortCode(code);
+    event = await resolveShortCode(code, churchId);
   } catch (error) {
     if (error instanceof DomainError) {
       return { error: "Código inválido." };
@@ -82,8 +77,8 @@ export async function debugAddXpAction(
   _prevState: DebugActionState,
   _formData: FormData
 ): Promise<DebugActionState> {
-  const session = await requireAdmin();
-  const result = await debugAddXpToNextEvolution(session.user.id);
+  const { userId } = await requireChurchAdmin();
+  const result = await debugAddXpToNextEvolution(userId);
   revalidatePath("/");
   return { message: `Nível ${result.pet.level} · ${result.newEvolution.name}${result.evolved ? " 🎉 evoluiu!" : ""}` };
 }
@@ -92,8 +87,8 @@ export async function debugResetPetAction(
   _prevState: DebugActionState,
   _formData: FormData
 ): Promise<DebugActionState> {
-  const session = await requireAdmin();
-  await debugResetPet(session.user.id);
+  const { userId } = await requireChurchAdmin();
+  await debugResetPet(userId);
   revalidatePath("/");
   return { message: "Pet resetado para o estágio inicial." };
 }
@@ -102,8 +97,8 @@ export async function debugRedoLineChoiceAction(
   _prevState: DebugActionState,
   _formData: FormData
 ): Promise<DebugActionState> {
-  const session = await requireAdmin();
-  await debugRedoLineChoice(session.user.id);
+  const { userId } = await requireChurchAdmin();
+  await debugRedoLineChoice(userId);
   revalidatePath("/");
   return { message: "Nome e linha limpos — escolha de novo na tela inicial." };
 }
@@ -112,8 +107,8 @@ export async function debugUnlockFoneAction(
   _prevState: DebugActionState,
   _formData: FormData
 ): Promise<DebugActionState> {
-  const session = await requireAdmin();
-  await debugGrantItemByName(session.user.id, "Fone");
+  const { userId } = await requireChurchAdmin();
+  await debugGrantItemByName(userId, "Fone");
   revalidatePath("/inventory");
   return { message: "Fone liberado! Veja em Itens 🎒" };
 }
@@ -122,8 +117,8 @@ export async function debugUnlockOculosAction(
   _prevState: DebugActionState,
   _formData: FormData
 ): Promise<DebugActionState> {
-  const session = await requireAdmin();
-  await debugGrantItemByName(session.user.id, "Óculos");
+  const { userId } = await requireChurchAdmin();
+  await debugGrantItemByName(userId, "Óculos");
   revalidatePath("/inventory");
   return { message: "Óculos liberado! Veja em Itens 🎒" };
 }

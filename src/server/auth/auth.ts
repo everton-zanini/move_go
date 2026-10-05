@@ -11,6 +11,10 @@ class InactiveUserError extends CredentialsSignin {
   code = "inactive";
 }
 
+class ChurchInactiveError extends CredentialsSignin {
+  code = "church_inactive";
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
@@ -31,8 +35,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const isValid = await verifyPassword(parsed.data.password, user.passwordHash);
         if (!isValid) return null;
         if (!user.active) throw new InactiveUserError();
+        if (user.church && !user.church.active) throw new ChurchInactiveError();
 
-        return { id: user.id, name: user.name, email: user.email, role: user.role };
+        return { id: user.id, name: user.name, email: user.email, role: user.role, churchId: user.churchId };
       },
     }),
   ],

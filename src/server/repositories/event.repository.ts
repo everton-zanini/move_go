@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client";
 
 type Client = typeof prisma | Prisma.TransactionClient;
 
+// Token e shortCode são únicos globalmente; o chamador valida se o evento é da igreja do usuário.
 export function findEventByToken(token: string, client: Client = prisma) {
   return client.event.findUnique({ where: { qrCodeToken: token } });
 }
@@ -11,26 +12,26 @@ export function findEventByShortCode(shortCode: string, client: Client = prisma)
   return client.event.findUnique({ where: { shortCode } });
 }
 
-export function findEventById(id: string, client: Client = prisma) {
-  return client.event.findUnique({ where: { id } });
+export function findEventById(id: string, churchId: string, client: Client = prisma) {
+  return client.event.findFirst({ where: { id, churchId } });
 }
 
-export function listEvents(client: Client = prisma) {
-  return client.event.findMany({ orderBy: { date: "desc" } });
+export function listEvents(churchId: string, client: Client = prisma) {
+  return client.event.findMany({ where: { churchId }, orderBy: { date: "desc" } });
 }
 
 /** Eventos ativos ainda por vir, para a agenda pública do jovem. */
-export function listUpcomingActiveEvents(startOfToday: Date, client: Client = prisma) {
+export function listUpcomingActiveEvents(churchId: string, startOfToday: Date, client: Client = prisma) {
   return client.event.findMany({
-    where: { active: true, date: { gte: startOfToday } },
+    where: { churchId, active: true, date: { gte: startOfToday } },
     orderBy: { date: "asc" },
   });
 }
 
 /** Eventos ativos cujo `endTime` caiu em (from, to] — usado para detectar eventos perdidos. */
-export function listActiveEventsEndedBetween(from: Date, to: Date, client: Client = prisma) {
+export function listActiveEventsEndedBetween(churchId: string, from: Date, to: Date, client: Client = prisma) {
   return client.event.findMany({
-    where: { active: true, endTime: { gt: from, lte: to } },
+    where: { churchId, active: true, endTime: { gt: from, lte: to } },
     select: { id: true, name: true },
   });
 }
@@ -52,15 +53,15 @@ export function countCheckInsForEvent(eventId: string, client: Client = prisma) 
 }
 
 /** Evento acontecendo agora, ou o próximo ativo a começar, para o card "evento atual" do dashboard. */
-export async function findCurrentOrNextEvent(now: Date, client: Client = prisma) {
+export async function findCurrentOrNextEvent(churchId: string, now: Date, client: Client = prisma) {
   const current = await client.event.findFirst({
-    where: { active: true, startTime: { lte: now }, endTime: { gte: now } },
+    where: { churchId, active: true, startTime: { lte: now }, endTime: { gte: now } },
     orderBy: { startTime: "asc" },
   });
   if (current) return current;
 
   return client.event.findFirst({
-    where: { active: true, startTime: { gt: now } },
+    where: { churchId, active: true, startTime: { gt: now } },
     orderBy: { startTime: "asc" },
   });
 }

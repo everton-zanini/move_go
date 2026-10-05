@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth, signOut } from "@/server/auth/auth";
-import { isUserActive } from "@/server/auth/active";
+import { getCurrentUser } from "@/server/auth/context";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -9,17 +9,25 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!session?.user) {
     redirect("/login");
   }
-  if (!(await isUserActive(session.user.id))) {
+  const user = await getCurrentUser();
+  if (!user) {
     redirect("/api/session-ended");
   }
-  if (session.user.role !== "ADMIN") {
+  // Role vem do banco: promoção/rebaixamento vale sem precisar relogar.
+  if (user.role === "SUPER_ADMIN") {
+    redirect("/platform");
+  }
+  if (user.role !== "ADMIN") {
     redirect("/");
   }
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <header className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-        <span className="font-pixel text-xs text-emerald-400">MOVEGO · ADMIN</span>
+        <div className="flex min-w-0 flex-col">
+          <span className="font-pixel text-xs text-emerald-400">MOVEGO · ADMIN</span>
+          {user.church && <span className="truncate text-[10px] text-white/40">{user.church.name}</span>}
+        </div>
         <div className="flex items-center gap-3">
           <Link href="/" className="text-sm text-white/50 hover:text-white">
             ← Voltar

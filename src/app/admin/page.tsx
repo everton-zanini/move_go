@@ -8,6 +8,7 @@ import {
 } from "@/server/repositories/checkin.repository";
 import { findCurrentOrNextEvent } from "@/server/repositories/event.repository";
 import { listEvolutionXpTable } from "@/server/services/pet.service";
+import { requireChurchAdmin } from "@/server/auth/context";
 
 function MetricCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -19,13 +20,14 @@ function MetricCard({ label, value }: { label: string; value: string | number })
 }
 
 export default async function AdminDashboardPage() {
+  const { churchId } = await requireChurchAdmin();
   const now = new Date();
   const [totalUsers, totalCheckIns, activeUsers, currentEvent, recentCheckIns, evolutionTable] = await Promise.all([
-    countUsers(),
-    countCheckIns(),
-    countDistinctCheckedInUsers(),
-    findCurrentOrNextEvent(now),
-    listRecentCheckIns(10),
+    countUsers(churchId),
+    countCheckIns(churchId),
+    countDistinctCheckedInUsers(churchId),
+    findCurrentOrNextEvent(churchId, now),
+    listRecentCheckIns(churchId, 10),
     listEvolutionXpTable(),
   ]);
 

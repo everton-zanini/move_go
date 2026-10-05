@@ -19,12 +19,13 @@ export async function listCheckedEventIds(userId: string, eventIds: string[], cl
   return rows.map((r) => r.eventId);
 }
 
-export function countCheckIns(client: Client = prisma) {
-  return client.checkIn.count();
+export function countCheckIns(churchId: string, client: Client = prisma) {
+  return client.checkIn.count({ where: { event: { churchId } } });
 }
 
-export function listRecentCheckIns(limit: number, client: Client = prisma) {
+export function listRecentCheckIns(churchId: string, limit: number, client: Client = prisma) {
   return client.checkIn.findMany({
+    where: { event: { churchId } },
     take: limit,
     orderBy: { createdAt: "desc" },
     include: {
@@ -35,8 +36,8 @@ export function listRecentCheckIns(limit: number, client: Client = prisma) {
 }
 
 /** Usuários com pelo menos 1 check-in — proxy simples de "usuários ativos" para o dashboard. */
-export async function countDistinctCheckedInUsers(client: Client = prisma) {
-  const rows = await client.checkIn.groupBy({ by: ["userId"] });
+export async function countDistinctCheckedInUsers(churchId: string, client: Client = prisma) {
+  const rows = await client.checkIn.groupBy({ by: ["userId"], where: { event: { churchId } } });
   return rows.length;
 }
 

@@ -66,7 +66,7 @@ export interface MissedEventsResult {
  * (sem cron): o marcador `missedEventsCheckedAt` impede contar o mesmo evento duas vezes e ignora
  * eventos anteriores ao cadastro.
  */
-export async function applyMissedEventPenalties(userId: string): Promise<MissedEventsResult> {
+export async function applyMissedEventPenalties(userId: string, churchId: string): Promise<MissedEventsResult> {
   const none: MissedEventsResult = { missedEvents: [], energyLost: 0, happinessLost: 0 };
 
   const [graceAfterMinutes, energyLoss, happinessLoss] = await Promise.all([
@@ -89,7 +89,7 @@ export async function applyMissedEventPenalties(userId: string): Promise<MissedE
     const claimed = await claimMissedEventsWindow(userId, pet.missedEventsCheckedAt, now, tx);
     if (claimed === 0) return none;
 
-    const ended = await listActiveEventsEndedBetween(from, to, tx);
+    const ended = await listActiveEventsEndedBetween(churchId, from, to, tx);
     if (ended.length === 0) return none;
 
     const attended = new Set(await listCheckedEventIds(userId, ended.map((e) => e.id), tx));

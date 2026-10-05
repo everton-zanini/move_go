@@ -22,6 +22,24 @@ datasource db {
 enum Role {
   USER
   ADMIN
+  SUPER_ADMIN // administra a plataforma (igrejas); não pertence a nenhuma igreja
+}
+
+// ============================================================
+// Igrejas (tenants) — cada igreja isola usuários, eventos e convites
+// ============================================================
+
+model Church {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users       User[]
+  events      Event[]
+  inviteLinks InviteLink[]
 }
 
 model User {
@@ -33,15 +51,20 @@ model User {
   active        Boolean   @default(true)
   emailVerified DateTime?
   image         String?
+  // null apenas para SUPER_ADMIN.
+  churchId      String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  church           Church?           @relation(fields: [churchId], references: [id], onDelete: Restrict)
   pet              Pet?
   checkIns         CheckIn[]
   userItems        UserItem[]
   userAchievements UserAchievement[]
   accounts         Account[]
   sessions         Session[]
+
+  @@index([churchId])
 }
 
 // Exigidas pelo @auth/prisma-adapter mesmo com strategy "jwt".
@@ -92,9 +115,12 @@ model InviteLink {
   expiresAt DateTime
   active    Boolean  @default(true)
   usesCount Int      @default(0)
+  churchId  String
   createdAt DateTime @default(now())
 
-  @@index([active, expiresAt])
+  church Church @relation(fields: [churchId], references: [id], onDelete: Restrict)
+
+  @@index([churchId, active, expiresAt])
 }
 
 // ============================================================
@@ -167,13 +193,15 @@ model Event {
   shortCode     String   @unique
   active        Boolean  @default(true)
   specialItemId String?
+  churchId      String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  church      Church    @relation(fields: [churchId], references: [id], onDelete: Restrict)
   specialItem Item?     @relation(fields: [specialItemId], references: [id])
   checkIns    CheckIn[]
 
-  @@index([active, date])
+  @@index([churchId, active, date])
 }
 
 model CheckIn {

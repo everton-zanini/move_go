@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { Prisma } from "@prisma/client";
 import { GAME_RULE_KEYS } from "@/config/game-rules.default";
-import { EventInactiveError, EventOutsideWindowError, NotFoundError } from "@/server/errors";
+import { EventInactiveError, EventNotFoundError, EventOutsideWindowError, NotFoundError } from "@/server/errors";
 import { createCheckIn } from "@/server/repositories/checkin.repository";
 import { findPetByUserId, updatePet } from "@/server/repositories/pet.repository";
 import { getConfigValue } from "./config.service";
@@ -47,8 +47,17 @@ export interface CheckInResult {
  * Orquestrador central do check-in. Toda a validação de negócio é revalidada
  * aqui no servidor — nunca confiar em estado vindo do client (ver skill qr-checkin).
  */
-export async function performCheckIn(params: { userId: string; token: string }): Promise<CheckInResult> {
+export async function performCheckIn(params: {
+  userId: string;
+  churchId: string;
+  token: string;
+}): Promise<CheckInResult> {
   const event = await validateToken(params.token);
+
+  // QR de outra igreja: responde como inexistente para não vazar dados entre igrejas.
+  if (event.churchId !== params.churchId) {
+    throw new EventNotFoundError();
+  }
 
   if (!event.active) {
     throw new EventInactiveError();

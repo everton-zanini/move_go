@@ -34,6 +34,12 @@ export class UnauthenticatedError extends DomainError {
   }
 }
 
+export class ForbiddenError extends DomainError {
+  constructor(message = "Acesso não autorizado.") {
+    super(message, "FORBIDDEN");
+  }
+}
+
 export class EventNotFoundError extends NotFoundError {
   constructor() {
     super("Este QR Code não corresponde a nenhum evento.");

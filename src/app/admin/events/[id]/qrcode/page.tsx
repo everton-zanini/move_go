@@ -1,16 +1,18 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getEventById } from "@/server/services/event.service";
+import { requireChurchAdmin } from "@/server/auth/context";
 import { buildCheckInUrl } from "@/lib/qrcode/generate";
 import { NotFoundError } from "@/server/errors";
 import { PrintButton } from "@/components/admin/PrintButton";
 
 export default async function EventQrCodePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const { churchId } = await requireChurchAdmin();
 
   let event;
   try {
-    event = await getEventById(id);
+    event = await getEventById(id, churchId);
   } catch (error) {
     if (error instanceof NotFoundError) {
       notFound();

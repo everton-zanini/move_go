@@ -155,6 +155,36 @@ async function seedAchievements() {
   return created;
 }
 
+// Mesmo id usado pela migration add_churches, que move os dados existentes para esta igreja.
+const DEFAULT_CHURCH_ID = "church-move-santana";
+
+async function seedDefaultChurch() {
+  const church = await prisma.church.upsert({
+    where: { id: DEFAULT_CHURCH_ID },
+    update: {},
+    create: { id: DEFAULT_CHURCH_ID, name: "Move Santana", slug: "move-santana" },
+  });
+  console.log(`✓ Igreja padrão seedada (${church.name})`);
+  return church;
+}
+
+/** Super-admin da plataforma: só é criado se as credenciais estiverem no env. */
+async function seedSuperAdmin() {
+  const email = process.env.SUPER_ADMIN_EMAIL;
+  const password = process.env.SUPER_ADMIN_PASSWORD;
+  if (!email || !password) {
+    console.log("• SUPER_ADMIN_EMAIL/SUPER_ADMIN_PASSWORD não definidos — super-admin não seedado");
+    return;
+  }
+  const passwordHash = await bcrypt.hash(password, 10);
+  await prisma.user.upsert({
+    where: { email },
+    update: {},
+    create: { name: "Super Admin", email, passwordHash, role: "SUPER_ADMIN" },
+  });
+  console.log(`✓ Super-admin seedado (${email})`);
+}
+
 async function seedAdminUser(speciesId: string) {
   const passwordHash = await bcrypt.hash("movepet123", 10);
   const admin = await prisma.user.upsert({
@@ -165,6 +195,7 @@ async function seedAdminUser(speciesId: string) {
       email: "admin@movesantana.com",
       passwordHash,
       role: "ADMIN",
+      churchId: DEFAULT_CHURCH_ID,
     },
   });
 
@@ -245,6 +276,7 @@ async function seedEvents(adoraItemId: string | undefined, bebraveItemId: string
       update: {},
       create: {
         ...event,
+        churchId: DEFAULT_CHURCH_ID,
         qrCodeToken: existing?.qrCodeToken ?? nanoid(24),
         shortCode: existing?.shortCode ?? generateShortCode(),
       },
@@ -263,6 +295,8 @@ async function main() {
   const species = await seedPetSpecies();
   const items = await seedItems();
   await seedAchievements();
+  await seedDefaultChurch();
+  await seedSuperAdmin();
   await seedAdminUser(species.id);
   const adoraItem = items.find((i) => i.name === "Fone Adora");
   const bebraveItem = items.find((i) => i.name === "BeBrave Glasses");

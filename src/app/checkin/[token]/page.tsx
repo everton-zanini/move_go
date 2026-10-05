@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { redirect } from "next/navigation";
 import { auth } from "@/server/auth/auth";
-import { isUserActive } from "@/server/auth/active";
+import { getCurrentUser } from "@/server/auth/context";
 import { validateToken } from "@/server/services/event.service";
 import { findCheckIn } from "@/server/repositories/checkin.repository";
 import { EventNotFoundError } from "@/server/errors";
@@ -11,9 +11,19 @@ import { CheckInScreen } from "./CheckInScreen";
 export default async function CheckInPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
 
+  const session = await auth();
+  const user = session?.user ? await getCurrentUser() : null;
+  if (session?.user && !user) {
+    redirect("/api/session-ended");
+  }
+
   let event;
   try {
     event = await validateToken(token);
+    // QR de outra igreja é tratado como inexistente.
+    if (user && event.churchId !== user.churchId) {
+      throw new EventNotFoundError();
+    }
   } catch (error) {
     if (error instanceof EventNotFoundError) {
       return (
@@ -37,11 +47,7 @@ export default async function CheckInPage({ params }: { params: Promise<{ token:
     );
   }
 
-  const session = await auth();
-  if (session?.user && !(await isUserActive(session.user.id))) {
-    redirect("/api/session-ended");
-  }
-  const existingCheckIn = session?.user ? await findCheckIn(session.user.id, event.id) : null;
+  const existingCheckIn = user ? await findCheckIn(user.id, event.id) : null;
 
   return (
     <main className="flex flex-1 flex-col">

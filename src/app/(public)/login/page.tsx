@@ -16,7 +16,7 @@ export default function LoginPage() {
       </Suspense>
 
       <p className="text-center text-xs text-white/60">
-        Novos cadastros são liberados em eventos de lançamento do Move Santana. Fique de olho! 👀
+        Novos cadastros são liberados pela sua igreja. Fique de olho! 👀
       </p>
     </div>
   );

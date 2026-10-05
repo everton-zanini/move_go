@@ -26,9 +26,9 @@ export async function validateToken(token: string) {
 }
 
 /** Resolve um código curto digitado manualmente (fallback quando não dá pra escanear o QR). */
-export async function resolveShortCode(code: string) {
+export async function resolveShortCode(code: string, churchId: string) {
   const event = await findEventByShortCode(code.trim().toUpperCase());
-  if (!event) {
+  if (!event || event.churchId !== churchId) {
     throw new EventNotFoundError();
   }
   return event;
@@ -51,26 +51,31 @@ function combineDateAndTime(dateStr: string, timeStr: string): Date {
   return new Date(`${dateStr}T${timeStr}:00`);
 }
 
-export function listEvents() {
-  return listEventsRepo();
+export function listEvents(churchId: string) {
+  return listEventsRepo(churchId);
 }
 
-/** Agenda pública: próximos eventos ativos, do mais próximo pro mais distante. */
-export function listUpcomingEvents() {
-  return listUpcomingActiveEvents(startOfDay(new Date()));
+/** Agenda pública: próximos eventos ativos da igreja, do mais próximo pro mais distante. */
+export function listUpcomingEvents(churchId: string) {
+  return listUpcomingActiveEvents(churchId, startOfDay(new Date()));
 }
 
-export async function getEventById(id: string) {
-  const event = await findEventById(id);
+export async function getEventById(id: string, churchId: string) {
+  const event = await findEventById(id, churchId);
   if (!event) {
     throw new NotFoundError("Evento não encontrado.");
   }
   return event;
 }
 
-export async function createEvent(input: EventFormInput, attempt = 0): Promise<Awaited<ReturnType<typeof createEventRepo>>> {
+export async function createEvent(
+  churchId: string,
+  input: EventFormInput,
+  attempt = 0
+): Promise<Awaited<ReturnType<typeof createEventRepo>>> {
   try {
     return await createEventRepo({
+      churchId,
       name: input.name,
       description: input.description || null,
       date: combineDateAndTime(input.date, "00:00"),
@@ -84,14 +89,14 @@ export async function createEvent(input: EventFormInput, attempt = 0): Promise<A
   } catch (error) {
     // shortCode tem só 6 caracteres — colisão é improvável mas não impossível, tenta de novo.
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002" && attempt < 5) {
-      return createEvent(input, attempt + 1);
+      return createEvent(churchId, input, attempt + 1);
     }
     throw error;
   }
 }
 
-export async function updateEvent(id: string, input: EventFormInput) {
-  await getEventById(id);
+export async function updateEvent(id: string, churchId: string, input: EventFormInput) {
+  await getEventById(id, churchId);
   return updateEventRepo(id, {
     name: input.name,
     description: input.description || null,
@@ -102,13 +107,13 @@ export async function updateEvent(id: string, input: EventFormInput) {
   });
 }
 
-export async function toggleEventActive(id: string) {
-  const event = await getEventById(id);
+export async function toggleEventActive(id: string, churchId: string) {
+  const event = await getEventById(id, churchId);
   return updateEventRepo(id, { active: !event.active });
 }
 
-export async function removeEvent(id: string) {
-  await getEventById(id);
+export async function removeEvent(id: string, churchId: string) {
+  await getEventById(id, churchId);
   const checkInsCount = await countCheckInsForEvent(id);
   if (checkInsCount > 0) {
     throw new ConflictError(
@@ -118,8 +123,8 @@ export async function removeEvent(id: string) {
   await deleteEventRepo(id);
 }
 
-export async function getQrCodeImage(id: string) {
-  const event = await getEventById(id);
+export async function getQrCodeImage(id: string, churchId: string) {
+  const event = await getEventById(id, churchId);
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const url = buildCheckInUrl(baseUrl, event.qrCodeToken);
   return generateQrPng(url);

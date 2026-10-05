@@ -18,7 +18,10 @@ export async function registerUser(input: RegisterInput) {
   const passwordHash = await hashPassword(input.password);
 
   return prisma.$transaction(async (tx) => {
-    const user = await createUser({ name: input.name, email: input.email, passwordHash }, tx);
+    const user = await createUser(
+      { name: input.name, email: input.email, passwordHash, churchId: inviteLink.churchId },
+      tx
+    );
     await createInitialPet(user.id, tx);
     await incrementInviteLinkUses(inviteLink.id, tx);
     return user;

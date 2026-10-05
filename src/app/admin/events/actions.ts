@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/server/auth/auth";
+import { requireChurchAdmin } from "@/server/auth/context";
 import { eventFormSchema } from "@/server/dto/event.dto";
 import {
   createEvent,
@@ -15,18 +15,11 @@ import { DomainError } from "@/server/errors";
 
 export type EventFormState = { error?: string };
 
-async function requireAdmin() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") {
-    throw new DomainError("Acesso não autorizado.", "FORBIDDEN");
-  }
-}
-
 export async function createEventAction(
   _prevState: EventFormState,
   formData: FormData
 ): Promise<EventFormState> {
-  await requireAdmin();
+  const { churchId } = await requireChurchAdmin();
 
   const parsed = eventFormSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -35,7 +28,7 @@ export async function createEventAction(
 
   let event;
   try {
-    event = await createEvent(parsed.data);
+    event = await createEvent(churchId, parsed.data);
   } catch (error) {
     if (error instanceof DomainError) {
       return { error: error.message };
@@ -52,7 +45,7 @@ export async function updateEventAction(
   _prevState: EventFormState,
   formData: FormData
 ): Promise<EventFormState> {
-  await requireAdmin();
+  const { churchId } = await requireChurchAdmin();
 
   const parsed = eventFormSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
@@ -60,7 +53,7 @@ export async function updateEventAction(
   }
 
   try {
-    await updateEvent(id, parsed.data);
+    await updateEvent(id, churchId, parsed.data);
   } catch (error) {
     if (error instanceof DomainError) {
       return { error: error.message };
@@ -74,17 +67,17 @@ export async function updateEventAction(
 }
 
 export async function toggleEventActiveAction(id: string) {
-  await requireAdmin();
-  await toggleEventActive(id);
+  const { churchId } = await requireChurchAdmin();
+  await toggleEventActive(id, churchId);
   revalidatePath("/admin/events");
   redirect(withFlash("/admin/events", "Status do evento alterado."));
 }
 
 export async function deleteEventAction(id: string) {
-  await requireAdmin();
+  const { churchId } = await requireChurchAdmin();
 
   try {
-    await removeEvent(id);
+    await removeEvent(id, churchId);
   } catch (error) {
     if (error instanceof DomainError) {
       redirect(withFlash("/admin/events", error.message, "error"));
