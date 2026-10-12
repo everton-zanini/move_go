@@ -9,7 +9,7 @@ import {
 import { getLevelCurveParams } from "@/server/services/config.service";
 import { listInventory } from "@/server/services/inventory.service";
 import { xpProgressForLevel } from "@/lib/game/level-curve";
-import { getPetTheme } from "@/lib/game/pet-theme";
+import { getLineKey, getPetTheme } from "@/lib/game/pet-theme";
 import { getPetMood, PET_MOOD_MESSAGES } from "@/lib/game/pet-mood";
 import { PetSprite } from "@/components/pet/PetSprite";
 import { PetStatsBar } from "@/components/pet/PetStatsBar";
@@ -58,11 +58,16 @@ export default async function HomePage() {
 
   return (
     <div
-      className="flex flex-1 flex-col items-center gap-6 px-6 py-8"
+      className="relative isolate flex flex-1 flex-col items-center gap-6 px-6 py-8"
       style={{ "--accent": theme.accent } as React.CSSProperties}
     >
+      <div
+        aria-hidden="true"
+        className="pet-scene"
+        data-line={getLineKey(pet.currentEvolution?.sprite ?? "egg") ?? "egg"}
+      />
       <div className="w-full max-w-xs text-center">
-        <p className="font-pixel text-[10px] text-emerald-400">MOVEGO</p>
+        <p className="font-pixel text-[10px] text-[color:var(--accent,#34d399)]">MOVEGO</p>
         <h1 className="mt-1 text-lg font-bold">{session?.user?.name}</h1>
       </div>
 

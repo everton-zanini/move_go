@@ -280,3 +280,158 @@ body {
     animation: none;
   }
 }
+
+/*
+ * Cenário atrás do pet na home (um por linha, escolhido por data-line em (app)/page.tsx).
+ * Só CSS: um degradê de fundo, uma camada de partículas (::before) e o chão (::after).
+ * As partículas são quadrados de 4px desenhados com box-shadow, no estilo pixel.
+ */
+.pet-scene {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 24rem;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent);
+  mask-image: linear-gradient(to bottom, #000 78%, transparent);
+}
+
+.pet-scene::before,
+.pet-scene::after {
+  content: "";
+  position: absolute;
+}
+
+.pet-scene::before {
+  top: 100%;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  animation: scene-rise 9s steps(40, end) infinite;
+}
+
+.pet-scene::after {
+  inset: auto 0 0 0;
+  height: 30%;
+}
+
+@keyframes scene-rise {
+  from {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15%,
+  80% {
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-24rem);
+    opacity: 0;
+  }
+}
+
+@keyframes scene-drift {
+  from {
+    transform: translateX(-30%);
+  }
+  to {
+    transform: translateX(30%);
+  }
+}
+
+@keyframes scene-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Ovo (sem linha escolhida): céu noturno com estrelas piscando. */
+.pet-scene[data-line="egg"] {
+  background: linear-gradient(to bottom, #1a1a38, #0f0f1a);
+}
+.pet-scene[data-line="egg"]::before {
+  top: 12%;
+  left: 12%;
+  background: #fff;
+  box-shadow: 70px 30px #fff, 150px -4px #fff, 230px 40px #fff, 290px 8px #fff, 40px 90px #fff, 200px 100px #fff;
+  animation: scene-twinkle 3s ease-in-out infinite;
+}
+.pet-scene[data-line="egg"]::after {
+  background: linear-gradient(to top, #39ff8833, transparent);
+}
+
+/* Ar (Gust): céu de fim de tarde com nuvens de pixel à deriva. */
+.pet-scene[data-line="gust"] {
+  background: linear-gradient(to bottom, #3a3a6b, #8a5a3a 70%, #3b2a20);
+}
+.pet-scene[data-line="gust"]::before {
+  top: 14%;
+  left: 20%;
+  width: 36px;
+  height: 8px;
+  background: #ffffff55;
+  box-shadow: 8px -8px #ffffff55, 20px -8px #ffffff55, 90px 50px #ffffff40, 100px 42px #ffffff40, 112px 42px #ffffff40;
+  animation: scene-drift 14s ease-in-out infinite alternate;
+}
+.pet-scene[data-line="gust"]::after {
+  background: linear-gradient(to top, #facc1555, transparent);
+}
+
+/* Terra (Roam): floresta ao anoitecer com vaga-lumes subindo. */
+.pet-scene[data-line="wolf"] {
+  background: linear-gradient(to bottom, #12281d, #0f1f17 70%, #0b140f);
+}
+.pet-scene[data-line="wolf"]::before {
+  left: 22%;
+  background: #bef264;
+  box-shadow: 90px 40px #bef264, 170px -30px #bef264, 230px 60px #bef264, -10px 80px #bef264;
+}
+.pet-scene[data-line="wolf"]::after {
+  height: 34%;
+  background:
+    radial-gradient(circle at 15% 100%, #0a1a11 0 26%, transparent 27%),
+    radial-gradient(circle at 55% 100%, #0d2418 0 32%, transparent 33%),
+    radial-gradient(circle at 92% 100%, #0a1a11 0 24%, transparent 25%);
+}
+
+/* Água (Tide): fundo do mar com bolhas subindo e ondas no alto. */
+.pet-scene[data-line="tide"] {
+  background:
+    repeating-linear-gradient(to bottom, #ffffff10 0 4px, transparent 4px 28px) 0 0 / 100% 50px no-repeat,
+    linear-gradient(to bottom, #0e4a6b, #0b2b45 70%, #0a1a2b);
+}
+.pet-scene[data-line="tide"]::before {
+  left: 18%;
+  background: #bae6fd;
+  box-shadow: 80px 30px #bae6fd, 150px -20px #bae6fd, 220px 50px #bae6fd, 280px 10px #bae6fd;
+  animation-duration: 7s;
+}
+.pet-scene[data-line="tide"]::after {
+  background: linear-gradient(to top, #38bdf833, transparent);
+}
+
+/* Fogo (Ígneo): brasas subindo sobre um chão incandescente. */
+.pet-scene[data-line="igneo"] {
+  background: linear-gradient(to bottom, #2a0f0f, #3b1408 75%, #5a1f0a);
+}
+.pet-scene[data-line="igneo"]::before {
+  left: 20%;
+  background: #fdba74;
+  box-shadow: 60px 20px #fb923c, 130px -30px #fdba74, 200px 40px #fb923c, 260px 0 #fdba74, 20px 70px #fb923c;
+  animation-duration: 6s;
+}
+.pet-scene[data-line="igneo"]::after {
+  background: linear-gradient(to top, #fb923ccc, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-scene::before {
+    animation: none;
+    top: 40%;
+  }
+}

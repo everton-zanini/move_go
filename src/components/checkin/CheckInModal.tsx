@@ -21,7 +21,7 @@ export function CheckInModal() {
       <button
         type="button"
         onClick={() => setMode("camera")}
-        className="min-h-12 rounded-full bg-emerald-500 px-6 py-3 text-sm font-bold text-black"
+        className="min-h-12 rounded-full bg-[color:var(--accent,#10b981)] px-6 py-3 text-sm font-bold text-black"
       >
         📷 Fazer Check-in
       </button>

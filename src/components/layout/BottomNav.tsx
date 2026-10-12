@@ -27,7 +27,7 @@ export function BottomNav() {
             href={tab.href}
             aria-current={active ? "page" : undefined}
             className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-xs ${
-              active ? "text-emerald-400" : "text-white/65"
+              active ? "text-[color:var(--accent,#34d399)]" : "text-white/65"
             }`}
           >
             <span aria-hidden="true" className="text-lg">

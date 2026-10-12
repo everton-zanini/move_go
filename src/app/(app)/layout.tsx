@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth, signOut } from "@/server/auth/auth";
 import { getCurrentUser } from "@/server/auth/context";
+import { findPetByUserId } from "@/server/repositories/pet.repository";
+import { getPetTheme } from "@/lib/game/pet-theme";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { InstallButton } from "@/components/layout/InstallButton";
 
@@ -19,11 +21,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/platform");
   }
 
+  const pet = await findPetByUserId(user.id);
+  const accent = getPetTheme(pet?.currentEvolution?.sprite ?? "egg").accent;
+
   return (
-    <div className="flex min-h-full flex-1 flex-col">
+    <div className="flex min-h-full flex-1 flex-col" style={{ "--accent": accent } as React.CSSProperties}>
       <header className="flex items-center justify-between border-b border-white/10 px-4 py-3">
         <div className="flex min-w-0 flex-col">
-          <span className="font-pixel text-xs text-emerald-400">MOVEGO</span>
+          <span className="font-pixel text-xs text-[color:var(--accent,#34d399)]">MOVEGO</span>
           {user.church && <span className="truncate text-xs text-white/60">{user.church.name}</span>}
         </div>
         <div className="flex items-center gap-3">

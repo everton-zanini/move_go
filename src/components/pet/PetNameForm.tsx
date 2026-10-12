@@ -41,7 +41,7 @@ export function PetNameForm({ lines }: { lines: SelectableLine[] }) {
                 onClick={() => setSelectedId(line.speciesId)}
                 style={{ "--accent": theme.accent } as React.CSSProperties}
                 className={`flex min-h-11 flex-col items-center gap-1 rounded-xl border-2 p-1 transition ${
-                  selected ? "border-[var(--accent)] bg-white/10" : "border-transparent opacity-70"
+                  selected ? "border-[color:var(--accent)] bg-white/10" : "border-transparent opacity-70"
                 }`}
               >
                 <PetSprite spriteKey={line.spriteKey} size="md" />
