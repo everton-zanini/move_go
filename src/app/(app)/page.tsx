@@ -13,6 +13,7 @@ import { getPetTheme } from "@/lib/game/pet-theme";
 import { getPetMood, PET_MOOD_MESSAGES } from "@/lib/game/pet-mood";
 import { PetSprite } from "@/components/pet/PetSprite";
 import { PetStatsBar } from "@/components/pet/PetStatsBar";
+import { WelcomeIntro } from "@/components/pet/WelcomeIntro";
 import { HatchIntro } from "@/components/pet/HatchIntro";
 import { PetNameForm } from "@/components/pet/PetNameForm";
 import { PetShareToggle } from "@/components/pet/PetShareToggle";
@@ -75,6 +76,8 @@ export default async function HomePage() {
           </p>
         </div>
       )}
+
+      {pet.level === 1 && <WelcomeIntro userName={session?.user?.name ?? "Jovem"} />}
 
       {member.role === "ADMIN" && <DebugPanel />}
 
