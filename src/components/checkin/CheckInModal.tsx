@@ -32,15 +32,16 @@ export function CheckInModal() {
           role="dialog"
           aria-modal="true"
           aria-label="Fazer check-in"
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black px-6"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 overflow-y-auto bg-black px-6 pb-6 pt-20"
         >
           {mode === "camera" && <CameraStep onPickCode={() => setMode("code")} />}
           {mode === "code" && <CodeStep onPickCamera={() => setMode("camera")} />}
 
+          {/* Fixo no topo: com a câmera ocupando a tela, um botão no fluxo sai da área visível. */}
           <button
             type="button"
             onClick={close}
-            className="min-h-11 rounded-full bg-white/10 px-6 py-3 text-sm font-semibold text-white"
+            className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] min-h-11 rounded-full bg-white/15 px-5 py-2 text-sm font-semibold text-white"
           >
             ✕ Fechar
           </button>
@@ -109,7 +110,7 @@ function CameraStep({ onPickCode }: { onPickCode: () => void }) {
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="relative w-full max-w-xs">
-        <video ref={videoRef} className="w-full rounded-xl bg-white/5" muted playsInline />
+        <video ref={videoRef} className="max-h-[60dvh] w-full rounded-xl bg-white/5 object-cover" muted playsInline />
         {!ready && !error && (
           <p className="absolute inset-0 flex items-center justify-center text-sm text-white/70">
             Abrindo a câmera...
