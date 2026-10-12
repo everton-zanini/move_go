@@ -10,10 +10,11 @@ const DEFAULT_THEME: PetTheme = {
   description: "Um ovo cheio de energia, prestes a chocar.",
 };
 
-// A cor e o elemento seguem a linha evolutiva (identificada pelo prefixo da chave do sprite).
+// A cor e o elemento seguem a linha evolutiva, identificada pelo prefixo da chave do sprite
+// (o Roam usa "wolf_" porque a arte é de um lobo).
 const THEMES_BY_LINE: Record<string, PetTheme> = {
   gust: { element: "Ar", accent: "#facc15", description: "Ave ágil e leve, sempre pronta pra voar mais alto." },
-  roam: { element: "Terra", accent: "#4ade80", description: "Lobo leal que anda com você em qualquer caminho." },
+  wolf: { element: "Terra", accent: "#4ade80", description: "Lobo leal que anda com você em qualquer caminho." },
   tide: { element: "Água", accent: "#38bdf8", description: "Tartaruga calma e resistente, avança sem pressa." },
   igneo: { element: "Fogo", accent: "#fb923c", description: "Salamandra intensa, que brilha mais a cada passo." },
 };
