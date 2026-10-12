@@ -21,9 +21,9 @@ export function PetNameForm({ lines }: { lines: SelectableLine[] }) {
 
   return (
     <div className="w-full max-w-xs rounded-xl border border-emerald-400/30 bg-emerald-400/5 p-4 text-center">
-      <p className="text-sm font-semibold">Seu pet já tem forma própria! 🎉</p>
+      <p className="text-sm font-semibold">Seu ovo chocou! 🐣</p>
       <p className="mt-1 text-xs text-white/70">
-        Escolha a linha do seu companheiro e dê um nome pra ele. Essa escolha é definitiva.
+        Escolha em quem ele vai se transformar e dê um nome pra ele. Essa escolha é definitiva.
       </p>
 
       <form action={formAction} className="mt-3 flex flex-col gap-3">
@@ -52,7 +52,18 @@ export function PetNameForm({ lines }: { lines: SelectableLine[] }) {
           })}
         </div>
 
-        {selectedTheme && <p className="text-xs text-white/80">{selectedTheme.description}</p>}
+        {selectedLine && selectedTheme && (
+          <div className="flex flex-col items-center gap-1">
+            <p className="text-xs text-white/80">{selectedTheme.description}</p>
+            <PetSprite
+              spriteKey={selectedLine.finalSpriteKey}
+              size="md"
+              silhouette
+              alt={`Silhueta da forma final da linha ${selectedLine.speciesName}`}
+            />
+            <p className="text-xs text-white/70">Forma final: descubra no nível {selectedLine.finalLevel}</p>
+          </div>
+        )}
 
         <input
           name="nickname"

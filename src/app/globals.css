@@ -67,6 +67,11 @@ body {
   animation: pet-blink 5s ease-in-out infinite;
 }
 
+.pet-silhouette {
+  filter: brightness(0) invert(1);
+  opacity: 0.35;
+}
+
 /* Humor do pet: feliz pula mais rápido, triste fica lento e apagado. */
 .pet-mood-happy {
   animation-duration: 1.8s;

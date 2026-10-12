@@ -58,12 +58,15 @@ export function PetSprite({
   equippedItemSpriteKeys = [],
   mood = "happy",
   alt = "Seu pet",
+  silhouette = false,
 }: {
   spriteKey: string;
   size?: "md" | "lg";
   equippedItemSpriteKeys?: string[];
   mood?: PetMood;
   alt?: string;
+  /** Mostra só o contorno do sprite — usado para esconder a forma final antes de ela ser alcançada. */
+  silhouette?: boolean;
 }) {
   const equippedSrc = equippedItemSpriteKeys
     .map((itemSprite) => EQUIPPED_SPRITE_IMAGES[`${spriteKey}__${itemSprite}`])
@@ -85,7 +88,7 @@ export function PetSprite({
       className={`pixel-frame flex items-center justify-center rounded-2xl ${frameSize}`}
       style={{ "--accent": getPetTheme(spriteKey).accent } as React.CSSProperties}
     >
-      <div className={`pet-idle pet-blink pet-mood-${mood} relative ${artSize}`}>
+      <div className={`pet-idle pet-blink pet-mood-${mood} relative ${artSize} ${silhouette ? "pet-silhouette" : ""}`}>
         <Image src={src} alt={alt} fill sizes="192px" className="object-contain" priority />
       </div>
     </div>

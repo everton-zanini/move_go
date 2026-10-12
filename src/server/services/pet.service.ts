@@ -22,6 +22,9 @@ export interface SelectableLine {
   speciesId: string;
   speciesName: string;
   spriteKey: string;
+  /** Sprite do último estágio da linha, mostrado como prévia na escolha. */
+  finalSpriteKey: string;
+  finalLevel: number;
 }
 
 /** Linhas evolutivas que já têm um estágio para o nível atual — o ovo (nível 1) é compartilhado. */
@@ -29,8 +32,16 @@ export async function listSelectableLines(level: number): Promise<SelectableLine
   const species = await listSpecies();
   const lines = await Promise.all(
     species.map(async (s) => {
-      const evolution = await findEvolutionForLevel(s.id, level);
-      return evolution ? { speciesId: s.id, speciesName: s.name, spriteKey: evolution.sprite } : null;
+      const [evolution, evolutions] = await Promise.all([findEvolutionForLevel(s.id, level), listEvolutions(s.id)]);
+      if (!evolution) return null;
+      const finalEvolution = evolutions[evolutions.length - 1] ?? evolution;
+      return {
+        speciesId: s.id,
+        speciesName: s.name,
+        spriteKey: evolution.sprite,
+        finalSpriteKey: finalEvolution.sprite,
+        finalLevel: finalEvolution.levelRequired,
+      };
     })
   );
   return lines.filter((line): line is SelectableLine => line !== null);
