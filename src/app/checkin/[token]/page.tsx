@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { formatBR } from "@/lib/datetime";
 import { ptBR } from "date-fns/locale";
 import { redirect } from "next/navigation";
 import { auth } from "@/server/auth/auth";
@@ -61,8 +61,8 @@ export default async function CheckInPage({
       <CheckInScreen
         token={token}
         eventName={event.name}
-        eventDate={format(event.date, "dd/MM/yyyy", { locale: ptBR })}
-        eventTime={format(event.startTime, "HH:mm")}
+        eventDate={formatBR(event.date, "dd/MM/yyyy", { locale: ptBR })}
+        eventTime={formatBR(event.startTime, "HH:mm")}
         alreadyCheckedIn={!!existingCheckIn}
         userName={session?.user?.name ?? "Jovem"}
         autoConfirm={auto === "1" && !!user}

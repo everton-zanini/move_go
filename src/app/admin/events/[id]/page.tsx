@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { format } from "date-fns";
+import { formatBR } from "@/lib/datetime";
 import { getEventById } from "@/server/services/event.service";
 import { requireChurchAdmin } from "@/server/auth/context";
 import { NotFoundError } from "@/server/errors";
@@ -32,9 +32,9 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
         defaultValues={{
           name: event.name,
           description: event.description ?? "",
-          date: format(event.date, "yyyy-MM-dd"),
-          startTime: format(event.startTime, "HH:mm"),
-          endTime: format(event.endTime, "HH:mm"),
+          date: formatBR(event.date, "yyyy-MM-dd"),
+          startTime: formatBR(event.startTime, "HH:mm"),
+          endTime: formatBR(event.endTime, "HH:mm"),
           xpReward: event.xpReward,
         }}
       />

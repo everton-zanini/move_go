@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { formatBR } from "@/lib/datetime";
 import { ptBR } from "date-fns/locale";
 
 type EventBadgeProps = {
@@ -15,9 +15,9 @@ export function EventBadge({ name, description, date, startTime, endTime }: Even
       <div className="flex items-start justify-between gap-3">
         <p className="font-pixel text-sm leading-relaxed text-emerald-400">{name}</p>
         <p className="font-pixel shrink-0 text-right text-[10px] leading-relaxed text-white/70">
-          {format(date, "dd/MM", { locale: ptBR })}
+          {formatBR(date, "dd/MM", { locale: ptBR })}
           <br />
-          {format(startTime, "HH:mm")}–{format(endTime, "HH:mm")}
+          {formatBR(startTime, "HH:mm")}–{formatBR(endTime, "HH:mm")}
         </p>
       </div>
       {description && <p className="text-xs text-white/60">{description}</p>}

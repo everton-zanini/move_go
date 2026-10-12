@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { format } from "date-fns";
+import { formatBR } from "@/lib/datetime";
 import { getInviteLinkById } from "@/server/services/invite-link.service";
 import { requireChurchAdmin } from "@/server/auth/context";
 import { NotFoundError } from "@/server/errors";
@@ -31,7 +31,7 @@ export default async function EditInviteLinkPage({ params }: { params: Promise<{
         confirmMessage="Salvar as alterações?"
         defaultValues={{
           label: link.label ?? "",
-          expiresAt: format(link.expiresAt, "yyyy-MM-dd'T'HH:mm"),
+          expiresAt: formatBR(link.expiresAt, "yyyy-MM-dd'T'HH:mm"),
         }}
       />
     </div>

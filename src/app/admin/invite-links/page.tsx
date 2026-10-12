@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { format } from "date-fns";
+import { formatBR } from "@/lib/datetime";
 import { ptBR } from "date-fns/locale";
 import { listInviteLinks } from "@/server/services/invite-link.service";
 import { requireChurchAdmin } from "@/server/auth/context";
@@ -42,7 +42,7 @@ export default async function AdminInviteLinksPage() {
                 <tr key={link.id} className="border-t border-white/5">
                   <td className="px-3 py-2">{link.label || "—"}</td>
                   <td className="px-3 py-2 text-white/60">
-                    {format(link.expiresAt, "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                    {formatBR(link.expiresAt, "dd/MM/yyyy HH:mm", { locale: ptBR })}
                   </td>
                   <td className="px-3 py-2">{link.usesCount}</td>
                   <td className="px-3 py-2">

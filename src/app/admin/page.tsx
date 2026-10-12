@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { formatBR } from "@/lib/datetime";
 import { ptBR } from "date-fns/locale";
 import { countUsers } from "@/server/repositories/user.repository";
 import {
@@ -92,7 +92,7 @@ export default async function AdminDashboardPage() {
                   <td className="px-3 py-2">{c.user.name}</td>
                   <td className="px-3 py-2">{c.event.name}</td>
                   <td className="px-3 py-2 text-white/50">
-                    {format(c.createdAt, "dd/MM HH:mm", { locale: ptBR })}
+                    {formatBR(c.createdAt, "dd/MM HH:mm", { locale: ptBR })}
                   </td>
                 </tr>
               ))}

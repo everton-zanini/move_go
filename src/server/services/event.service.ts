@@ -1,6 +1,5 @@
 import { nanoid, customAlphabet } from "nanoid";
 import { Prisma } from "@prisma/client";
-import { startOfDay } from "date-fns";
 import { ConflictError, EventNotFoundError, NotFoundError } from "@/server/errors";
 import {
   countCheckInsForEvent,
@@ -15,6 +14,7 @@ import {
 } from "@/server/repositories/event.repository";
 import { buildCheckInUrl, generateQrPng } from "@/lib/qrcode/generate";
 import type { EventFormInput } from "@/server/dto/event.dto";
+import { parseLocalDateTime, startOfTodayBR } from "@/lib/datetime";
 
 /** Resolve um token opaco de QR Code para o evento associado. Lança se não existir. */
 export async function validateToken(token: string) {
@@ -48,7 +48,7 @@ export function generateShortCode(): string {
 }
 
 function combineDateAndTime(dateStr: string, timeStr: string): Date {
-  return new Date(`${dateStr}T${timeStr}:00`);
+  return parseLocalDateTime(dateStr, timeStr);
 }
 
 export function listEvents(churchId: string) {
@@ -57,7 +57,7 @@ export function listEvents(churchId: string) {
 
 /** Agenda pública: próximos eventos ativos da igreja, do mais próximo pro mais distante. */
 export function listUpcomingEvents(churchId: string) {
-  return listUpcomingActiveEvents(churchId, startOfDay(new Date()));
+  return listUpcomingActiveEvents(churchId, startOfTodayBR());
 }
 
 export async function getEventById(id: string, churchId: string) {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { format } from "date-fns";
+import { formatBR } from "@/lib/datetime";
 import { ptBR } from "date-fns/locale";
 import { listEvents } from "@/server/services/event.service";
 import { requireChurchAdmin } from "@/server/auth/context";
@@ -38,9 +38,9 @@ export default async function AdminEventsPage() {
             {events.map((e) => (
               <tr key={e.id} className="border-t border-white/5">
                 <td className="px-3 py-2">{e.name}</td>
-                <td className="px-3 py-2 text-white/60">{format(e.date, "dd/MM/yyyy", { locale: ptBR })}</td>
+                <td className="px-3 py-2 text-white/60">{formatBR(e.date, "dd/MM/yyyy", { locale: ptBR })}</td>
                 <td className="px-3 py-2 text-white/60">
-                  {format(e.startTime, "HH:mm")}–{format(e.endTime, "HH:mm")}
+                  {formatBR(e.startTime, "HH:mm")}–{formatBR(e.endTime, "HH:mm")}
                 </td>
                 <td className="px-3 py-2">{e.xpReward}</td>
                 <td className="px-3 py-2">

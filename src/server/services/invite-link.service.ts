@@ -16,6 +16,7 @@ import {
 } from "@/server/repositories/invite-link.repository";
 import { buildInviteUrl, generateQrPng } from "@/lib/qrcode/generate";
 import { getAppBaseUrl } from "@/lib/app-url";
+import { parseLocalDateTimeInput } from "@/lib/datetime";
 import type { InviteLinkFormInput } from "@/server/dto/invite-link.dto";
 
 export async function listInviteLinks(churchId: string) {
@@ -41,7 +42,7 @@ export async function createInviteLink(
     return await createInviteLinkRepo({
       churchId,
       label: input.label || null,
-      expiresAt: new Date(input.expiresAt),
+      expiresAt: parseLocalDateTimeInput(input.expiresAt),
       token: nanoid(24),
       active: true,
     });
@@ -58,7 +59,7 @@ export async function updateInviteLink(id: string, churchId: string, input: Invi
   await getInviteLinkById(id, churchId);
   return updateInviteLinkRepo(id, {
     label: input.label || null,
-    expiresAt: new Date(input.expiresAt),
+    expiresAt: parseLocalDateTimeInput(input.expiresAt),
   });
 }
 

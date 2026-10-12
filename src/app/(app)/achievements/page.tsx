@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { formatBR } from "@/lib/datetime";
 import { ptBR } from "date-fns/locale";
 import { auth } from "@/server/auth/auth";
 import { listAchievementsWithProgress } from "@/server/services/achievement.service";
@@ -29,7 +29,7 @@ export default async function AchievementsPage() {
             <p className="text-xs text-white/70">{achievement.description}</p>
             {unlockedAt ? (
               <p className="text-xs text-emerald-300">
-                Desbloqueada em {format(unlockedAt, "dd/MM/yyyy", { locale: ptBR })}
+                Desbloqueada em {formatBR(unlockedAt, "dd/MM/yyyy", { locale: ptBR })}
               </p>
             ) : (
               progress && (
