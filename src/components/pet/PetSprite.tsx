@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { PetMood } from "@/lib/game/pet-mood";
 
 /**
  * A chave vem de PetEvolution.sprite — cada estágio tem uma arte própria em public/pet/,
@@ -54,10 +55,14 @@ export function PetSprite({
   spriteKey,
   size = "lg",
   equippedItemSpriteKeys = [],
+  mood = "happy",
+  alt = "Seu pet",
 }: {
   spriteKey: string;
   size?: "md" | "lg";
   equippedItemSpriteKeys?: string[];
+  mood?: PetMood;
+  alt?: string;
 }) {
   const equippedSrc = equippedItemSpriteKeys
     .map((itemSprite) => EQUIPPED_SPRITE_IMAGES[`${spriteKey}__${itemSprite}`])
@@ -76,8 +81,8 @@ export function PetSprite({
 
   return (
     <div className={`pixel-frame flex items-center justify-center rounded-2xl ${frameSize}`}>
-      <div className={`pet-idle pet-blink relative ${artSize}`}>
-        <Image src={src} alt="" fill sizes="192px" className="object-contain" priority />
+      <div className={`pet-idle pet-blink pet-mood-${mood} relative ${artSize}`}>
+        <Image src={src} alt={alt} fill sizes="192px" className="object-contain" priority />
       </div>
     </div>
   );

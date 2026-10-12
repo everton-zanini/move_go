@@ -55,13 +55,12 @@ export function Toaster() {
         <FlashReader />
       </Suspense>
       <div
-        aria-live="polite"
-        className="pointer-events-none fixed inset-x-0 top-3 z-50 flex flex-col items-center gap-2 px-4"
+                className="pointer-events-none fixed inset-x-0 top-3 z-50 flex flex-col items-center gap-2 px-4"
       >
         {items.map((item) => (
           <div
             key={item.id}
-            role="status"
+            role={item.type === "error" ? "alert" : "status"}
             className={`pointer-events-auto w-full max-w-sm rounded-lg px-4 py-3 text-sm font-medium shadow-lg ${
               item.type === "error" ? "bg-red-500 text-white" : "bg-emerald-500 text-black"
             }`}

@@ -8,6 +8,7 @@ import {
 import { getLevelCurveParams } from "@/server/services/config.service";
 import { listInventory } from "@/server/services/inventory.service";
 import { xpProgressForLevel } from "@/lib/game/level-curve";
+import { getPetMood, PET_MOOD_MESSAGES } from "@/lib/game/pet-mood";
 import { PetSprite } from "@/components/pet/PetSprite";
 import { PetStatsBar } from "@/components/pet/PetStatsBar";
 import { PetNameForm } from "@/components/pet/PetNameForm";
@@ -43,6 +44,7 @@ export default async function HomePage() {
 
   const stageName = pet.currentEvolution?.name ?? "Spark";
   const hasHatched = (pet.currentEvolution?.levelRequired ?? 1) > 1;
+  const mood = getPetMood(pet.energy, pet.happiness);
   const needsName = hasHatched && !pet.nickname;
   const lines = needsName ? await listSelectableLines(pet.level) : [];
 
@@ -76,7 +78,13 @@ export default async function HomePage() {
           <PetSprite
             spriteKey={pet.currentEvolution?.sprite ?? "egg"}
             equippedItemSpriteKeys={equippedItemSpriteKeys}
+            mood={mood}
+            alt={`${pet.nickname ?? "Seu pet"}, ${stageName}`}
           />
+
+          <p className="max-w-xs rounded-lg bg-white/5 px-3 py-2 text-center text-sm text-white/80">
+            {PET_MOOD_MESSAGES[mood]}
+          </p>
 
           <div className="w-full max-w-xs text-center">
             <p className="text-sm text-white/70">
@@ -84,8 +92,8 @@ export default async function HomePage() {
               {stageName} · Nível {pet.level}
             </p>
             <div className="mt-2">
-              <ProgressBar value={progress.current} max={progress.required} />
-              <p className="mt-1 text-xs text-white/50">
+              <ProgressBar value={progress.current} max={progress.required} label="Progresso de XP até o próximo nível" />
+              <p className="mt-1 text-xs text-white/70">
                 {progress.current} / {progress.required} XP
               </p>
             </div>
@@ -102,7 +110,7 @@ export default async function HomePage() {
             petName={pet.nickname ?? session?.user?.name ?? "Jovem"}
             spriteKey={pet.currentEvolution?.sprite ?? "egg"}
             level={pet.level}
-            headline={pet.nickname ?? "Meu Spark"}
+            headline={pet.nickname ?? "Meu pet"}
             subline={`${stageName} · Nível ${pet.level}`}
             streak={pet.currentStreak}
             energy={pet.energy}

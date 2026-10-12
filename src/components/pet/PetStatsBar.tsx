@@ -1,9 +1,11 @@
 function Stat({ icon, value, label }: { icon: string; value: number; label: string }) {
   return (
     <div className="flex flex-col items-center gap-0.5 rounded-lg bg-white/5 py-2">
-      <span className="text-lg">{icon}</span>
+      <span aria-hidden="true" className="text-lg">
+        {icon}
+      </span>
       <span className="text-sm font-semibold">{value}</span>
-      <span className="text-[10px] uppercase tracking-wide text-white/65">{label}</span>
+      <span className="text-xs text-white/70">{label}</span>
     </div>
   );
 }

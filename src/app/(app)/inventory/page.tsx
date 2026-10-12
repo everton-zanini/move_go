@@ -37,9 +37,9 @@ export default async function InventoryPage() {
             key={userItem.itemId}
             className="flex flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-4 text-center"
           >
-            <ItemSprite spriteKey={userItem.item.sprite} />
+            <ItemSprite spriteKey={userItem.item.sprite} alt={userItem.item.name} />
             <p className="text-sm font-semibold">{userItem.item.name}</p>
-            <p className="text-[10px] uppercase tracking-wide text-white/65">
+            <p className="text-xs text-white/70">
               {SLOT_LABELS[userItem.item.slot] ?? userItem.item.slot}
             </p>
             <form action={toggleEquipAction.bind(null, userItem.itemId, userItem.equipped)}>

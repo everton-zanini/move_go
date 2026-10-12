@@ -68,7 +68,7 @@ export async function resolveCheckInCodeAction(
     throw error;
   }
 
-  redirect(`/checkin/${event.qrCodeToken}`);
+  redirect(`/checkin/${event.qrCodeToken}?auto=1`);
 }
 
 export type DebugActionState = { message?: string };

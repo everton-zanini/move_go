@@ -1,19 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PetSprite } from "@/components/pet/PetSprite";
+import { useModalA11y } from "@/components/ui/useModalA11y";
+import { playFeedback } from "@/lib/feedback";
 
 const PARTICLE_COUNT = 10;
 const PARTICLE_DISTANCE = 70;
 
-const BURSTS: { top: string; left: string; color: string; delay: number }[] = [
+export const BURSTS: { top: string; left: string; color: string; delay: number }[] = [
   { top: "20%", left: "22%", color: "#39ff88", delay: 0 },
   { top: "15%", left: "72%", color: "#ffe14d", delay: 0.3 },
   { top: "62%", left: "18%", color: "#ff5d8f", delay: 0.6 },
   { top: "60%", left: "78%", color: "#5dc8ff", delay: 0.9 },
 ];
 
-function FireworkBurst({ top, left, color, delay }: { top: string; left: string; color: string; delay: number }) {
+export function FireworkBurst({ top, left, color, delay }: { top: string; left: string; color: string; delay: number }) {
   return (
     <div className="firework-burst" style={{ top, left }}>
       {Array.from({ length: PARTICLE_COUNT }, (_, i) => {
@@ -39,6 +41,11 @@ function FireworkBurst({ top, left, color, delay }: { top: string; left: string;
 
 export function EvolutionModal({ evolutionName, spriteKey }: { evolutionName: string; spriteKey: string }) {
   const [open, setOpen] = useState(true);
+  const dialogRef = useModalA11y<HTMLDivElement>(open, () => setOpen(false));
+
+  useEffect(() => {
+    playFeedback("levelUp", [80, 60, 80, 60, 200]);
+  }, []);
 
   if (!open) {
     return null;
@@ -46,6 +53,7 @@ export function EvolutionModal({ evolutionName, spriteKey }: { evolutionName: st
 
   return (
     <div
+      ref={dialogRef}
       className="evolution-backdrop fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-black/90 px-6"
       onClick={() => setOpen(false)}
       role="dialog"
@@ -61,7 +69,7 @@ export function EvolutionModal({ evolutionName, spriteKey }: { evolutionName: st
         onClick={(e) => e.stopPropagation()}
       >
         <p className="font-pixel text-xs text-yellow-300">PARABÉNS!</p>
-        <p className="font-pixel text-sm text-emerald-400">SEU SPARK EVOLUIU!</p>
+        <p className="font-pixel text-sm text-emerald-400">SEU PET EVOLUIU!</p>
 
         <PetSprite spriteKey={spriteKey} size="lg" />
 

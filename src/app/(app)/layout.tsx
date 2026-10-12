@@ -24,12 +24,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header className="flex items-center justify-between border-b border-white/10 px-4 py-3">
         <div className="flex min-w-0 flex-col">
           <span className="font-pixel text-xs text-emerald-400">MOVEGO</span>
-          {user.church && <span className="truncate text-[10px] text-white/40">{user.church.name}</span>}
+          {user.church && <span className="truncate text-xs text-white/60">{user.church.name}</span>}
         </div>
         <div className="flex items-center gap-3">
           <InstallButton />
           {user.role === "ADMIN" && (
-            <Link href="/admin" className="text-sm text-white/50 hover:text-white">
+            <Link href="/admin" className="inline-flex min-h-11 items-center px-1 text-sm text-white/70 hover:text-white">
               Admin
             </Link>
           )}
@@ -50,7 +50,7 @@ function SignOutForm() {
         await signOut({ redirectTo: "/login" });
       }}
     >
-      <button type="submit" className="text-sm text-white/50 hover:text-white">
+      <button type="submit" className="inline-flex min-h-11 items-center px-1 text-sm text-white/70 hover:text-white">
         Sair
       </button>
     </form>

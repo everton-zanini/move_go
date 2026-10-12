@@ -8,8 +8,15 @@ import { findCheckIn } from "@/server/repositories/checkin.repository";
 import { EventNotFoundError } from "@/server/errors";
 import { CheckInScreen } from "./CheckInScreen";
 
-export default async function CheckInPage({ params }: { params: Promise<{ token: string }> }) {
+export default async function CheckInPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ token: string }>;
+  searchParams: Promise<{ auto?: string }>;
+}) {
   const { token } = await params;
+  const { auto } = await searchParams;
 
   const session = await auth();
   const user = session?.user ? await getCurrentUser() : null;
@@ -58,6 +65,7 @@ export default async function CheckInPage({ params }: { params: Promise<{ token:
         eventTime={format(event.startTime, "HH:mm")}
         alreadyCheckedIn={!!existingCheckIn}
         userName={session?.user?.name ?? "Jovem"}
+        autoConfirm={auto === "1" && !!user}
       />
     </main>
   );

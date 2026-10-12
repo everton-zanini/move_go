@@ -1,29 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { EvolutionModal } from "@/components/pet/EvolutionModal";
-import { ShareActions } from "@/components/share/ShareActions";
+import { CheckInReward } from "@/components/checkin/CheckInReward";
 import { performCheckInAction, type CheckInActionState } from "./actions";
-import type { CheckInResult } from "@/server/services/checkin.service";
 
 const initialState: CheckInActionState = { status: "idle" };
-
-function buildShareContent(r: CheckInResult): { headline: string; subline: string } {
-  if (r.evolved) {
-    return { headline: "Meu Spark evoluiu! 🎉", subline: r.evolutionName };
-  }
-  if (r.newAchievements.length > 0) {
-    return { headline: "Conquista desbloqueada! 🏆", subline: r.newAchievements[0].name };
-  }
-  if (r.newItems.length > 0) {
-    return { headline: "Item desbloqueado! ✨", subline: r.newItems[0].name };
-  }
-  if (r.leveledUp) {
-    return { headline: "Subi de nível! 🎉", subline: `Nível ${r.newLevel}` };
-  }
-  return { headline: "Fiz check-in! ✅", subline: r.eventName };
-}
 
 export function CheckInScreen({
   token,
@@ -32,6 +14,7 @@ export function CheckInScreen({
   eventTime,
   alreadyCheckedIn,
   userName,
+  autoConfirm,
 }: {
   token: string;
   eventName: string;
@@ -39,8 +22,20 @@ export function CheckInScreen({
   eventTime: string;
   alreadyCheckedIn: boolean;
   userName: string;
+  autoConfirm: boolean;
 }) {
   const [state, formAction, isPending] = useActionState(performCheckInAction, initialState);
+  const autoSubmitted = useRef(false);
+
+  // QR lido dentro do app: confirma direto, sem pedir um segundo toque. O servidor segue sendo
+  // quem valida janela, igreja e duplicidade (performCheckIn é idempotente).
+  useEffect(() => {
+    if (!autoConfirm || alreadyCheckedIn || autoSubmitted.current) return;
+    autoSubmitted.current = true;
+    const formData = new FormData();
+    formData.set("token", token);
+    startTransition(() => formAction(formData));
+  }, [autoConfirm, alreadyCheckedIn, token, formAction]);
 
   if (state.status === "success") {
     const r = state.result;
@@ -49,7 +44,7 @@ export function CheckInScreen({
       return (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-10 text-center">
           <p className="text-4xl">✅</p>
-          <p className="text-sm text-white/60">Você já fez check-in em {r.eventName}.</p>
+          <p className="text-sm text-white/70">Você já fez check-in em {r.eventName}.</p>
           <Link
             href="/"
             className="mt-2 rounded-full bg-white/10 px-6 py-3 text-sm font-semibold text-white"
@@ -60,75 +55,14 @@ export function CheckInScreen({
       );
     }
 
+    return <CheckInReward result={r} userName={userName} />;
+  }
+
+  if (autoConfirm && !alreadyCheckedIn && state.status === "idle") {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-10 text-center">
-        <p className="text-3xl">✨</p>
-        <p className="font-pixel text-xs text-emerald-400">XP GANHO!</p>
-        <p className="text-3xl font-bold">+{r.xpEarned} XP</p>
-
-        <div className="flex gap-4 text-sm text-white/70">
-          <span>❤️ +{r.energyGained} Energia</span>
-          <span>😊 +{r.happinessGained} Felicidade</span>
-        </div>
-
-        {r.streakBonusXp > 0 && (
-          <p className="text-sm text-orange-300">
-            🔥 Bônus de sequência ({r.streak}): +{r.streakBonusXp} XP
-          </p>
-        )}
-
-        {r.leveledUp && (
-          <div className="mt-2 flex flex-col items-center gap-1">
-            <p className="text-3xl">🎉</p>
-            <p className="font-pixel text-xs text-yellow-300">LEVEL UP!</p>
-            <p className="text-sm text-white/70">Nível {r.newLevel}</p>
-          </div>
-        )}
-
-        {r.evolved && <EvolutionModal evolutionName={r.evolutionName} spriteKey={r.spriteKey} />}
-
-        {r.newItems.length > 0 && (
-          <div className="mt-2 flex flex-col items-center gap-1">
-            <p className="font-pixel text-xs text-emerald-400">ITEM DESBLOQUEADO!</p>
-            {r.newItems.map((item) => (
-              <p key={item.id} className="text-sm text-white/70">
-                ✨ {item.name}
-              </p>
-            ))}
-          </div>
-        )}
-
-        {r.newAchievements.length > 0 && (
-          <div className="mt-2 flex flex-col items-center gap-1">
-            <p className="font-pixel text-xs text-yellow-300">CONQUISTA DESBLOQUEADA!</p>
-            {r.newAchievements.map((achievement) => (
-              <p key={achievement.id} className="text-sm text-white/70">
-                {achievement.icon} {achievement.name}
-              </p>
-            ))}
-          </div>
-        )}
-
-        <p className="mt-2 max-w-xs text-sm text-white/70">
-          Seu pet ficou feliz porque você voltou! 🐾
-        </p>
-
-        <div className="mt-6 border-t border-white/10 pt-6">
-          <ShareActions
-            petName={userName}
-            spriteKey={r.spriteKey}
-            level={r.newLevel}
-            streak={r.streak}
-            {...buildShareContent(r)}
-          />
-        </div>
-
-        <Link
-          href="/"
-          className="mt-4 rounded-full bg-emerald-500 px-6 py-3 text-sm font-bold text-black"
-        >
-          Ver meu Spark
-        </Link>
+      <div role="status" className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
+        <p className="text-4xl motion-safe:animate-bounce">🥚</p>
+        <p className="text-sm text-white/80">Confirmando seu check-in em {eventName}...</p>
       </div>
     );
   }
@@ -139,17 +73,17 @@ export function CheckInScreen({
 
       <div>
         <h1 className="text-xl font-bold">{eventName}</h1>
-        <p className="mt-1 text-sm text-white/60">
+        <p className="mt-1 text-sm text-white/70">
           {eventDate} · {eventTime}
         </p>
       </div>
 
       {alreadyCheckedIn ? (
-        <p className="text-sm text-white/60">Você já fez check-in neste evento. ✅</p>
+        <p className="text-sm text-white/70">Você já fez check-in neste evento. ✅</p>
       ) : (
         <form action={formAction} className="flex flex-col items-center gap-3">
           <input type="hidden" name="token" value={token} />
-          {state.status === "error" && <p className="text-sm text-red-400">{state.message}</p>}
+          {state.status === "error" && <p className="text-sm text-red-400" role="alert">{state.message}</p>}
           <button
             type="submit"
             disabled={isPending}
@@ -160,7 +94,7 @@ export function CheckInScreen({
         </form>
       )}
 
-      <Link href="/" className="text-sm text-white/50 underline underline-offset-2">
+      <Link href="/" className="text-sm text-white/70 underline underline-offset-2 inline-flex min-h-11 items-center">
         Voltar para o pet
       </Link>
     </div>

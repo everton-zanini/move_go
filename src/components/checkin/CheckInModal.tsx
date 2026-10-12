@@ -3,9 +3,10 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import QrScanner from "qr-scanner";
+import { useModalA11y } from "@/components/ui/useModalA11y";
 import { resolveCheckInCodeAction, type CheckInCodeState } from "@/app/(app)/actions";
 
-type Mode = "closed" | "choice" | "camera" | "code";
+type Mode = "closed" | "camera" | "code";
 
 const initialCodeState: CheckInCodeState = {};
 
@@ -13,27 +14,33 @@ export function CheckInModal() {
   const [mode, setMode] = useState<Mode>("closed");
 
   const close = () => setMode("closed");
+  const dialogRef = useModalA11y<HTMLDivElement>(mode !== "closed", close);
 
   return (
     <>
       <button
         type="button"
-        onClick={() => setMode("choice")}
-        className="rounded-full bg-emerald-500 px-6 py-3 text-sm font-bold text-black"
+        onClick={() => setMode("camera")}
+        className="min-h-12 rounded-full bg-emerald-500 px-6 py-3 text-sm font-bold text-black"
       >
         📷 Fazer Check-in
       </button>
 
       {mode !== "closed" && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black px-6">
-          {mode === "choice" && <ChoiceStep onPickCamera={() => setMode("camera")} onPickCode={() => setMode("code")} />}
-          {mode === "camera" && <CameraStep onBack={() => setMode("choice")} />}
-          {mode === "code" && <CodeStep onBack={() => setMode("choice")} />}
+        <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Fazer check-in"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-black px-6"
+        >
+          {mode === "camera" && <CameraStep onPickCode={() => setMode("code")} />}
+          {mode === "code" && <CodeStep onPickCamera={() => setMode("camera")} />}
 
           <button
             type="button"
             onClick={close}
-            className="rounded-full bg-white/10 px-6 py-3 text-sm font-semibold text-white"
+            className="min-h-11 rounded-full bg-white/10 px-6 py-3 text-sm font-semibold text-white"
           >
             ✕ Fechar
           </button>
@@ -43,33 +50,12 @@ export function CheckInModal() {
   );
 }
 
-function ChoiceStep({ onPickCamera, onPickCode }: { onPickCamera: () => void; onPickCode: () => void }) {
-  return (
-    <div className="flex flex-col items-center gap-4 text-center">
-      <p className="text-sm text-white/70">Como você quer fazer o check-in?</p>
-      <button
-        type="button"
-        onClick={onPickCamera}
-        className="w-64 rounded-full bg-emerald-500 px-6 py-3 text-sm font-bold text-black"
-      >
-        📷 Escanear QR Code
-      </button>
-      <button
-        type="button"
-        onClick={onPickCode}
-        className="w-64 rounded-full bg-white/10 px-6 py-3 text-sm font-semibold text-white"
-      >
-        🔢 Digitar código
-      </button>
-    </div>
-  );
-}
-
-function CameraStep({ onBack }: { onBack: () => void }) {
+function CameraStep({ onPickCode }: { onPickCode: () => void }) {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const scannerRef = useRef<QrScanner | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (!videoRef.current) {
@@ -89,7 +75,8 @@ function CameraStep({ onBack }: { onBack: () => void }) {
         return;
       }
       scannerRef.current?.stop();
-      router.push(url.pathname);
+      // auto=1: o QR foi lido dentro do app, então a tela de check-in confirma sozinha.
+      router.push(`${url.pathname}?auto=1`);
     };
 
     const scanner = new QrScanner(
@@ -110,6 +97,7 @@ function CameraStep({ onBack }: { onBack: () => void }) {
 
     scanner
       .start()
+      .then(() => setReady(true))
       .catch(() => setError("Não foi possível acessar a câmera. Verifique a permissão."));
 
     return () => {
@@ -120,17 +108,28 @@ function CameraStep({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <video ref={videoRef} className="w-full max-w-xs rounded-xl" muted playsInline />
-      {error && <p className="max-w-xs text-center text-sm text-red-400">{error}</p>}
-      <p className="text-center text-xs text-white/50">Aponte a câmera para o QR Code do evento</p>
-      <button type="button" onClick={onBack} className="text-sm text-white/50 underline underline-offset-2">
+      <div className="relative w-full max-w-xs">
+        <video ref={videoRef} className="w-full rounded-xl bg-white/5" muted playsInline />
+        {!ready && !error && (
+          <p className="absolute inset-0 flex items-center justify-center text-sm text-white/70">
+            Abrindo a câmera...
+          </p>
+        )}
+      </div>
+      {error && <p role="alert" className="max-w-xs text-center text-sm text-red-400">{error}</p>}
+      <p className="text-center text-xs text-white/70">Aponte a câmera para o QR Code do evento</p>
+      <button
+        type="button"
+        onClick={onPickCode}
+        className="min-h-11 text-sm text-white/70 underline underline-offset-2"
+      >
         Digitar código em vez disso
       </button>
     </div>
   );
 }
 
-function CodeStep({ onBack }: { onBack: () => void }) {
+function CodeStep({ onPickCamera }: { onPickCamera: () => void }) {
   const [state, formAction, isPending] = useActionState(resolveCheckInCodeAction, initialCodeState);
 
   return (
@@ -146,7 +145,10 @@ function CodeStep({ onBack }: { onBack: () => void }) {
         placeholder="EX: 4KZ7QM"
         className="w-48 rounded-lg border border-white/15 bg-white/5 px-3 py-3 text-center text-lg font-bold uppercase tracking-widest outline-none focus:border-emerald-400"
       />
-      {state?.error && <p className="text-sm text-red-400">{state.error}</p>}
+      {state?.error && (
+        <p role="alert" className="text-sm text-red-400">{state.error}
+        </p>
+      )}
       <button
         type="submit"
         disabled={isPending}
@@ -154,7 +156,11 @@ function CodeStep({ onBack }: { onBack: () => void }) {
       >
         {isPending ? "Verificando..." : "Confirmar"}
       </button>
-      <button type="button" onClick={onBack} className="text-sm text-white/50 underline underline-offset-2">
+      <button
+        type="button"
+        onClick={onPickCamera}
+        className="min-h-11 text-sm text-white/70 underline underline-offset-2"
+      >
         Escanear QR Code em vez disso
       </button>
     </form>

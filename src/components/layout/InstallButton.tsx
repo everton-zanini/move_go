@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useModalA11y } from "@/components/ui/useModalA11y";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -27,6 +28,7 @@ export function InstallButton() {
   const [isInstalled, setIsInstalled] = useState(true);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSHint, setShowIOSHint] = useState(false);
+  const hintRef = useModalA11y<HTMLDivElement>(showIOSHint, () => setShowIOSHint(false));
 
   useEffect(() => {
     // Leitura de window/navigator só é segura após a hidratação — setar aqui
@@ -73,13 +75,17 @@ export function InstallButton() {
       <button
         type="button"
         onClick={handleClick}
-        className="flex items-center gap-1 rounded-full border border-emerald-400/40 px-3 py-1.5 text-xs font-semibold text-emerald-400 hover:bg-emerald-400/10"
+        className="flex min-h-11 items-center gap-1 rounded-full border border-emerald-400/40 px-3 py-1.5 text-xs font-semibold text-emerald-400 hover:bg-emerald-400/10"
       >
         📲 Instalar
       </button>
 
       {showIOSHint && (
         <div
+          ref={hintRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Como instalar o app"
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 px-4 pb-6"
           onClick={() => setShowIOSHint(false)}
         >
