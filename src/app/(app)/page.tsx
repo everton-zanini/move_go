@@ -13,6 +13,7 @@ import { getPetTheme } from "@/lib/game/pet-theme";
 import { getPetMood, PET_MOOD_MESSAGES } from "@/lib/game/pet-mood";
 import { PetSprite } from "@/components/pet/PetSprite";
 import { PetStatsBar } from "@/components/pet/PetStatsBar";
+import { HatchIntro } from "@/components/pet/HatchIntro";
 import { PetNameForm } from "@/components/pet/PetNameForm";
 import { PetShareToggle } from "@/components/pet/PetShareToggle";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -81,7 +82,9 @@ export default async function HomePage() {
 
       {needsName ? (
         // Antes de escolher a linha o estágio atual é provisório — só o formulário aparece.
-        <PetNameForm lines={lines} />
+        <HatchIntro>
+          <PetNameForm lines={lines} />
+        </HatchIntro>
       ) : (
         <>
           <PetSprite

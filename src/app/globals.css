@@ -183,3 +183,100 @@ body {
     animation: none;
   }
 }
+
+/* Ovo chocando (src/components/pet/HatchIntro.tsx): treme cada vez mais, racha e dá um flash. */
+@keyframes egg-shake {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  10%,
+  50% {
+    transform: translateX(-2px) rotate(-1deg);
+  }
+  20%,
+  60% {
+    transform: translateX(2px) rotate(1deg);
+  }
+  35% {
+    transform: translateX(-4px) rotate(-3deg);
+  }
+  45% {
+    transform: translateX(4px) rotate(3deg);
+  }
+  70% {
+    transform: translateX(-6px) rotate(-5deg);
+  }
+  80% {
+    transform: translateX(6px) rotate(5deg) scale(1.04);
+  }
+  90% {
+    transform: translateX(0) rotate(0) scale(1.08);
+  }
+}
+
+@keyframes egg-crack-draw {
+  0%,
+  40% {
+    stroke-dashoffset: 1;
+  }
+  75%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes egg-flash {
+  0%,
+  88% {
+    opacity: 0;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes hatch-reveal {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.egg-hatch {
+  animation: egg-shake 2.8s steps(14, end) forwards;
+}
+
+.egg-cracks {
+  fill: none;
+  stroke: #0f0f1a;
+  stroke-width: 1.5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: egg-crack-draw 2.8s linear forwards;
+}
+
+.egg-flash {
+  opacity: 0;
+  animation: egg-flash 2.8s ease-out forwards;
+}
+
+.hatch-reveal {
+  animation: hatch-reveal 0.4s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .egg-hatch,
+  .egg-cracks,
+  .egg-flash,
+  .hatch-reveal {
+    animation: none;
+  }
+}
