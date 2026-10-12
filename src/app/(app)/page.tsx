@@ -3,11 +3,13 @@ import { requireMember } from "@/server/auth/context";
 import { findPetByUserId } from "@/server/repositories/pet.repository";
 import {
   applyMissedEventPenalties,
+  getNextEvolutionProgress,
   listSelectableLines,
 } from "@/server/services/pet.service";
 import { getLevelCurveParams } from "@/server/services/config.service";
 import { listInventory } from "@/server/services/inventory.service";
 import { xpProgressForLevel } from "@/lib/game/level-curve";
+import { getPetTheme } from "@/lib/game/pet-theme";
 import { getPetMood, PET_MOOD_MESSAGES } from "@/lib/game/pet-mood";
 import { PetSprite } from "@/components/pet/PetSprite";
 import { PetStatsBar } from "@/components/pet/PetStatsBar";
@@ -46,10 +48,17 @@ export default async function HomePage() {
   const hasHatched = (pet.currentEvolution?.levelRequired ?? 1) > 1;
   const mood = getPetMood(pet.energy, pet.happiness);
   const needsName = hasHatched && !pet.nickname;
-  const lines = needsName ? await listSelectableLines(pet.level) : [];
+  const [lines, nextEvolution] = await Promise.all([
+    needsName ? listSelectableLines(pet.level) : Promise.resolve([]),
+    needsName ? Promise.resolve(null) : getNextEvolutionProgress(pet),
+  ]);
+  const theme = getPetTheme(pet.currentEvolution?.sprite ?? "egg");
 
   return (
-    <div className="flex flex-1 flex-col items-center gap-6 px-6 py-8">
+    <div
+      className="flex flex-1 flex-col items-center gap-6 px-6 py-8"
+      style={{ "--accent": theme.accent } as React.CSSProperties}
+    >
       <div className="w-full max-w-xs text-center">
         <p className="font-pixel text-[10px] text-emerald-400">MOVEGO</p>
         <h1 className="mt-1 text-lg font-bold">{session?.user?.name}</h1>
@@ -96,6 +105,11 @@ export default async function HomePage() {
               <p className="mt-1 text-xs text-white/70">
                 {progress.current} / {progress.required} XP
               </p>
+              {nextEvolution && (
+                <p className="mt-1 text-xs text-white/70">
+                  Faltam {nextEvolution.xpRemaining} XP para {nextEvolution.name} (nível {nextEvolution.levelRequired})
+                </p>
+              )}
             </div>
           </div>
 

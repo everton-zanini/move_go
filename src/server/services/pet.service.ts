@@ -36,6 +36,28 @@ export async function listSelectableLines(level: number): Promise<SelectableLine
   return lines.filter((line): line is SelectableLine => line !== null);
 }
 
+export interface NextEvolutionProgress {
+  name: string;
+  levelRequired: number;
+  xpRemaining: number;
+}
+
+/** Quanto XP falta para o próximo estágio da linha atual; null quando já está no último. */
+export async function getNextEvolutionProgress(pet: {
+  speciesId: string;
+  level: number;
+  totalXp: number;
+}): Promise<NextEvolutionProgress | null> {
+  const [evolutions, curve] = await Promise.all([listEvolutions(pet.speciesId), getLevelCurveParams()]);
+  const next = evolutions.find((evolution) => evolution.levelRequired > pet.level);
+  if (!next) return null;
+  return {
+    name: next.name,
+    levelRequired: next.levelRequired,
+    xpRemaining: Math.max(0, xpRequiredForLevel(next.levelRequired, curve) - pet.totalXp),
+  };
+}
+
 /** Define o nome e a linha evolutiva do pet (troca a espécie e o estágio atual de uma vez). */
 export async function renamePet(userId: string, input: PetNicknameInput) {
   const pet = await findPetByUserId(userId);

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { PetMood } from "@/lib/game/pet-mood";
+import { getPetTheme } from "@/lib/game/pet-theme";
 
 /**
  * A chave vem de PetEvolution.sprite — cada estágio tem uma arte própria em public/pet/,
@@ -80,7 +81,10 @@ export function PetSprite({
         : "h-20 w-20";
 
   return (
-    <div className={`pixel-frame flex items-center justify-center rounded-2xl ${frameSize}`}>
+    <div
+      className={`pixel-frame flex items-center justify-center rounded-2xl ${frameSize}`}
+      style={{ "--accent": getPetTheme(spriteKey).accent } as React.CSSProperties}
+    >
       <div className={`pet-idle pet-blink pet-mood-${mood} relative ${artSize}`}>
         <Image src={src} alt={alt} fill sizes="192px" className="object-contain" priority />
       </div>

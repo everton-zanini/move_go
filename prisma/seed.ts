@@ -139,6 +139,11 @@ async function seedAchievements() {
     { name: "Constante", description: "5 check-ins.", icon: "🔥🔥", criteriaType: AchievementCriteriaType.CHECKIN_COUNT, criteriaValue: 5 },
     { name: "Dedicado", description: "10 check-ins.", icon: "⭐", criteriaType: AchievementCriteriaType.CHECKIN_COUNT, criteriaValue: 10 },
     { name: "Evento Especial", description: "Participou de um evento especial.", icon: "🎉", criteriaType: AchievementCriteriaType.SPECIAL_EVENT, criteriaValue: null },
+    { name: "Em Chamas", description: "Sequência de 3 check-ins.", icon: "🔥", criteriaType: AchievementCriteriaType.STREAK, criteriaValue: 3 },
+    { name: "Imparável", description: "Sequência de 5 check-ins.", icon: "⚡", criteriaType: AchievementCriteriaType.STREAK, criteriaValue: 5 },
+    { name: "Crescendo", description: "Chegou ao nível 5.", icon: "🌱", criteriaType: AchievementCriteriaType.LEVEL, criteriaValue: 5 },
+    { name: "Veterano", description: "Chegou ao nível 10.", icon: "🛡️", criteriaType: AchievementCriteriaType.LEVEL, criteriaValue: 10 },
+    { name: "Lendário", description: "Chegou ao nível 20.", icon: "👑", criteriaType: AchievementCriteriaType.LEVEL, criteriaValue: 20 },
     { name: "Primeira Evolução", description: "Spark evoluiu pela primeira vez.", icon: "🐣", criteriaType: AchievementCriteriaType.LEVEL, criteriaValue: 2 },
   ];
 

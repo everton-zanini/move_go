@@ -74,6 +74,50 @@ export async function evaluate(params: {
   return newlyUnlocked;
 }
 
+export interface AchievementProgress {
+  achievement: Achievement;
+  unlockedAt: Date | null;
+  /** Só existe para critérios numéricos (check-ins, sequência, nível). */
+  progress: { current: number; target: number } | null;
+}
+
+function progressFor(achievement: Achievement, stats: UserStats): AchievementProgress["progress"] {
+  if (achievement.criteriaValue === null) return null;
+  const current =
+    achievement.criteriaType === "CHECKIN_COUNT"
+      ? stats.checkInCount
+      : achievement.criteriaType === "STREAK"
+        ? stats.longestStreak
+        : achievement.criteriaType === "LEVEL"
+          ? stats.level
+          : null;
+  if (current === null) return null;
+  return { current: Math.min(current, achievement.criteriaValue), target: achievement.criteriaValue };
+}
+
+/** Todas as conquistas com data de desbloqueio e progresso atual do usuário. */
+export async function listAchievementsWithProgress(userId: string): Promise<AchievementProgress[]> {
+  const [allAchievements, unlocked, pet, checkInCount] = await Promise.all([
+    listAchievements(),
+    listUserAchievementsRepo(userId),
+    findPetByUserId(userId),
+    countCheckInsForUser(userId),
+  ]);
+  const stats: UserStats = {
+    checkInCount,
+    level: pet?.level ?? 1,
+    longestStreak: pet?.longestStreak ?? 0,
+    hasSpecialEventCheckIn: false,
+  };
+  const unlockedAtById = new Map(unlocked.map((row) => [row.achievementId, row.unlockedAt]));
+
+  return allAchievements.map((achievement) => ({
+    achievement,
+    unlockedAt: unlockedAtById.get(achievement.id) ?? null,
+    progress: progressFor(achievement, stats),
+  }));
+}
+
 export function listUserAchievements(userId: string) {
   return listUserAchievementsRepo(userId);
 }
