@@ -103,11 +103,11 @@ export default async function HomePage() {
             <div className="mt-2">
               <ProgressBar value={progress.current} max={progress.required} label="Progresso de XP até o próximo nível" />
               <p className="mt-1 text-xs text-white/70">
-                {progress.current} / {progress.required} XP
+                {progress.current} / {progress.required} XP para o nível {pet.level + 1}
               </p>
               {nextEvolution && (
                 <p className="mt-1 text-xs text-white/70">
-                  Faltam {nextEvolution.xpRemaining} XP para {nextEvolution.name} (nível {nextEvolution.levelRequired})
+                  Evolui para {nextEvolution.name} no nível {nextEvolution.levelRequired} (faltam {nextEvolution.xpRemaining} XP no total)
                 </p>
               )}
             </div>
