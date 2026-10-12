@@ -12,7 +12,7 @@ export function getPetMood(energy: number, happiness: number): PetMood {
 }
 
 export const PET_MOOD_MESSAGES: Record<PetMood, string> = {
-  happy: "Tô com energia total! Bora pro próximo culto?",
+  happy: "Tô com energia total! Bora pro próximo evento?",
   neutral: "Tô bem, mas sinto saudade dos encontros.",
   sad: "Faz tempo que a gente não se vê... volta pra mim?",
 };
