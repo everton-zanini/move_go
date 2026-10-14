@@ -6,10 +6,12 @@ import { requireChurchAdmin } from "@/server/auth/context";
 import { eventFormSchema } from "@/server/dto/event.dto";
 import {
   createEvent,
+  getEventById,
   removeEvent,
   toggleEventActive,
   updateEvent,
 } from "@/server/services/event.service";
+import { notifyEventReminder } from "@/server/services/push-notification.service";
 import { withFlash } from "@/lib/flash";
 import { DomainError } from "@/server/errors";
 
@@ -87,4 +89,26 @@ export async function deleteEventAction(id: string) {
 
   revalidatePath("/admin/events");
   redirect(withFlash("/admin/events", "Evento excluído com sucesso."));
+}
+
+export async function sendEventReminderAction(id: string) {
+  const { churchId } = await requireChurchAdmin();
+  const event = await getEventById(id, churchId);
+
+  const result = await notifyEventReminder({
+    id: event.id,
+    churchId: event.churchId,
+    name: event.name,
+    startTime: event.startTime,
+    xpReward: event.xpReward,
+  });
+
+  revalidatePath("/admin/events");
+  revalidatePath(`/admin/events/${id}`);
+  redirect(
+    withFlash(
+      `/admin/events/${id}`,
+      `Lembrete push enviado para ${result.sent} membro(s) com notificações ativas.`
+    )
+  );
 }

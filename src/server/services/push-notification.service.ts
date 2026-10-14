@@ -4,6 +4,11 @@ import {
   findSubscriptionsByChurchId,
   upsertPushSubscription,
 } from "@/server/repositories/push-subscription.repository";
+import {
+  listTodayActiveEventsNeedingReminder,
+  markEventReminderSent,
+} from "@/server/repositories/event.repository";
+import { endOfTodayBR, formatBR, startOfTodayBR } from "@/lib/datetime";
 import type { PushSubscriptionInput } from "@/server/dto/push.dto";
 
 function configureVapid() {
@@ -75,4 +80,78 @@ export async function notifyNewEvent(event: NewEventNotificationPayload): Promis
   });
 
   await Promise.allSettled(sendPromises);
+}
+
+export interface EventReminderPayload {
+  id: string;
+  churchId: string;
+  name: string;
+  startTime: Date;
+  xpReward: number;
+}
+
+export async function notifyEventReminder(event: EventReminderPayload): Promise<{ sent: number }> {
+  const configured = configureVapid();
+  if (!configured) {
+    console.warn("[PushNotification] VAPID keys not configured, skipping push notifications.");
+    return { sent: 0 };
+  }
+
+  const subscriptions = await findSubscriptionsByChurchId(event.churchId);
+  if (subscriptions.length === 0) {
+    await markEventReminderSent(event.id);
+    return { sent: 0 };
+  }
+
+  const startTimeFormatted = formatBR(event.startTime, "HH:mm");
+  const payload = JSON.stringify({
+    title: `Hoje tem ${event.name}! 🚀`,
+    body: `Começa às ${startTimeFormatted}. Venha garantir +${event.xpReward} XP pro seu pet!`,
+    url: "/events",
+  });
+
+  const sendPromises = subscriptions.map(async (sub) => {
+    try {
+      await webpush.sendNotification(
+        {
+          endpoint: sub.endpoint,
+          keys: {
+            p256dh: sub.p256dh,
+            auth: sub.auth,
+          },
+        },
+        payload
+      );
+    } catch (error: unknown) {
+      const statusCode = (error as { statusCode?: number })?.statusCode;
+      if (statusCode === 404 || statusCode === 410) {
+        await deletePushSubscriptionByEndpoint(sub.endpoint);
+      } else {
+        console.error(`[PushNotification] Erro ao enviar lembrete para ${sub.endpoint}:`, error);
+      }
+    }
+  });
+
+  await Promise.allSettled(sendPromises);
+  await markEventReminderSent(event.id);
+
+  return { sent: subscriptions.length };
+}
+
+export async function sendDailyEventReminders(): Promise<{ eventsProcessed: number }> {
+  const todayStart = startOfTodayBR();
+  const todayEnd = endOfTodayBR();
+
+  const events = await listTodayActiveEventsNeedingReminder(todayStart, todayEnd);
+  for (const event of events) {
+    await notifyEventReminder({
+      id: event.id,
+      churchId: event.churchId,
+      name: event.name,
+      startTime: event.startTime,
+      xpReward: event.xpReward,
+    });
+  }
+
+  return { eventsProcessed: events.length };
 }

@@ -65,3 +65,26 @@ export async function findCurrentOrNextEvent(churchId: string, now: Date, client
     orderBy: { startTime: "asc" },
   });
 }
+
+/** Eventos ativos do dia que ainda não tiveram lembrete enviado. */
+export function listTodayActiveEventsNeedingReminder(
+  startOfDay: Date,
+  endOfDay: Date,
+  client: Client = prisma
+) {
+  return client.event.findMany({
+    where: {
+      active: true,
+      reminderSentAt: null,
+      date: { gte: startOfDay, lte: endOfDay },
+    },
+    orderBy: { startTime: "asc" },
+  });
+}
+
+export function markEventReminderSent(id: string, sentAt = new Date(), client: Client = prisma) {
+  return client.event.update({
+    where: { id },
+    data: { reminderSentAt: sentAt },
+  });
+}

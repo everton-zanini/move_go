@@ -1,4 +1,4 @@
-import { format, startOfDay, type FormatOptions } from "date-fns";
+import { endOfDay, format, startOfDay, type FormatOptions } from "date-fns";
 import { TZDate, tz } from "@date-fns/tz";
 
 // Fixo em código: a Vercel roda em UTC e não podemos depender de TZ no ambiente.
@@ -25,4 +25,9 @@ export function formatBR(date: Date, pattern: string, options?: Pick<FormatOptio
 /** Início do dia atual em Brasília. */
 export function startOfTodayBR(): Date {
   return new Date(startOfDay(TZDate.tz(APP_TIME_ZONE)).getTime());
+}
+
+/** Fim do dia atual em Brasília (23:59:59.999). */
+export function endOfTodayBR(): Date {
+  return new Date(endOfDay(TZDate.tz(APP_TIME_ZONE)).getTime());
 }

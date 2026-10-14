@@ -4,7 +4,7 @@ import { ptBR } from "date-fns/locale";
 import { listEvents } from "@/server/services/event.service";
 import { requireChurchAdmin } from "@/server/auth/context";
 import { ConfirmSubmitButton } from "@/components/ui/ConfirmSubmitButton";
-import { toggleEventActiveAction, deleteEventAction } from "./actions";
+import { toggleEventActiveAction, deleteEventAction, sendEventReminderAction } from "./actions";
 
 export default async function AdminEventsPage() {
   const { churchId } = await requireChurchAdmin();
@@ -59,6 +59,17 @@ export default async function AdminEventsPage() {
                     >
                       QR Code
                     </Link>
+                    {e.active && (
+                      <form action={sendEventReminderAction.bind(null, e.id)}>
+                        <ConfirmSubmitButton
+                          label={e.reminderSentAt ? "🔔 Reenviar lembrete" : "🔔 Enviar lembrete"}
+                          pendingLabel="Enviando..."
+                          confirmMessage={`Disparar notificação de lembrete para todos os membros sobre "${e.name}"?`}
+                          confirmLabel="Enviar"
+                          className="text-amber-400 underline underline-offset-2"
+                        />
+                      </form>
+                    )}
                     <form action={toggleEventActiveAction.bind(null, e.id)}>
                       <ConfirmSubmitButton
                         label={e.active ? "Desativar" : "Ativar"}
