@@ -61,6 +61,7 @@ model User {
   checkIns         CheckIn[]
   userItems        UserItem[]
   userAchievements UserAchievement[]
+  pushSubscriptions PushSubscription[]
   accounts         Account[]
   sessions         Session[]
 
@@ -305,4 +306,21 @@ model ConfigEntry {
   value       String // JSON.stringify do valor (number/string/object)
   description String?
   updatedAt   DateTime @updatedAt
+}
+
+// ============================================================
+// Web Push Notifications
+// ============================================================
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

@@ -15,6 +15,7 @@ import {
 import { buildCheckInUrl, generateQrPng } from "@/lib/qrcode/generate";
 import type { EventFormInput } from "@/server/dto/event.dto";
 import { parseLocalDateTime, startOfTodayBR } from "@/lib/datetime";
+import { notifyNewEvent } from "@/server/services/push-notification.service";
 
 /** Resolve um token opaco de QR Code para o evento associado. Lança se não existir. */
 export async function validateToken(token: string) {
@@ -74,7 +75,7 @@ export async function createEvent(
   attempt = 0
 ): Promise<Awaited<ReturnType<typeof createEventRepo>>> {
   try {
-    return await createEventRepo({
+    const event = await createEventRepo({
       churchId,
       name: input.name,
       description: input.description || null,
@@ -86,6 +87,17 @@ export async function createEvent(
       shortCode: generateShortCode(),
       active: true,
     });
+
+    // Dispara notificação push assíncrona para os membros da igreja
+    void notifyNewEvent({
+      churchId,
+      name: event.name,
+      xpReward: event.xpReward,
+    }).catch((err) => {
+      console.error("[PushNotification] Falha ao disparar push de novo evento:", err);
+    });
+
+    return event;
   } catch (error) {
     // shortCode tem só 6 caracteres — colisão é improvável mas não impossível, tenta de novo.
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002" && attempt < 5) {

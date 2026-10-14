@@ -3,6 +3,7 @@ import { findPetByUserId } from "@/server/repositories/pet.repository";
 import { countCheckInsForUser } from "@/server/repositories/checkin.repository";
 import { listUserAchievements } from "@/server/services/achievement.service";
 import { listInventory } from "@/server/services/inventory.service";
+import { PushNotificationToggle } from "@/components/push/PushNotificationToggle";
 
 function ProfileStat({ label, value }: { label: string; value: number }) {
   return (
@@ -40,6 +41,10 @@ export default async function ProfilePage() {
           <ProfileStat label="Itens" value={inventory.length} />
         </div>
       )}
+
+      <div className="mt-2 w-full max-w-xs">
+        <PushNotificationToggle />
+      </div>
     </div>
   );
 }

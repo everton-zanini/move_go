@@ -73,6 +73,9 @@ npm run db:down
 | `NEXTAUTH_URL` | URL base da aplicação (usada pelo Auth.js) |
 | `NEXT_PUBLIC_APP_URL` | URL pública usada para montar os links de check-in dos QR Codes (`/checkin/[token]`) |
 | `SUPER_ADMIN_EMAIL` / `SUPER_ADMIN_PASSWORD` | Opcionais. Usadas só pelo seed e pelo `prisma/create-super-admin.ts` para criar o super-admin — **não precisam estar na Vercel** (o deploy não roda o seed) |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Chave pública VAPID para Web Push Notifications no PWA |
+| `VAPID_PRIVATE_KEY` | Chave privada VAPID para envio de notificações pelo servidor |
+| `VAPID_SUBJECT` | E-mail de contato / subject para o protocolo VAPID (ex.: `mailto:contato@movesantana.com`) |
 
 ## Rodando localmente
 
@@ -153,6 +156,7 @@ Ver `.claude/skills/architecture/SKILL.md` para as convenções de camadas (UI �
 7. ✅ Compartilhamento (card visual gerado client-side com `html-to-image`, na tela de resultado do check-in — evolução/conquista/item têm prioridade sobre o check-in simples; usa a Web Share API nativa quando disponível — ótimo pra Instagram/WhatsApp — com fallback de download da imagem)
 8. ✅ PWA + refinamento visual (ícones reais 192/512 + maskable, fallback offline em `/~offline`, páginas 404/erro estilizadas, `trustHost` corrigido para funcionar em produção fora da Vercel, `robots.txt` bloqueando indexação — app privado — e ajustes de contraste; auditado com Lighthouse: Accessibility 100, Best Practices 100)
 9. ✅ Multi-igreja (tenants isolados por `churchId`, migration `add_churches` movendo os dados existentes para a Move Santana, promoção de admins por igreja e painel de super-admin em `/platform`)
+10. ✅ Notificações push no PWA (Web Push API + VAPID, Service Worker via Serwist, modelo `PushSubscription`, disparo automático filtrado por igreja na criação de eventos e toggle de ativação no perfil do usuário)
 
 ## Ideias futuras (backlog)
 
