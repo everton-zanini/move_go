@@ -39,8 +39,10 @@ export default async function EditJourneyPage({ params }: { params: Promise<{ id
     };
   });
 
+  const nextUnfilledDay = allDaysList.find((d) => !d.record)?.dayNumber ?? 1;
+
   return (
-    <div className="flex flex-col gap-8 pb-12">
+    <div className="flex flex-col gap-6 pb-12">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">{journey.title}</h1>
@@ -56,13 +58,36 @@ export default async function EditJourneyPage({ params }: { params: Promise<{ id
         </Link>
       </div>
 
+      {/* Banner de Ação Rápida */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5 shadow-sm">
+        <div className="space-y-1">
+          <h2 className="text-sm font-bold text-emerald-200">
+            📝 Onde cadastrar as tarefas, versículos e textos base?
+          </h2>
+          <p className="text-xs text-emerald-100/80 leading-relaxed max-w-xl">
+            Cada dia do devocional tem seus próprios <b>versículos de leitura</b>, <b>texto base/reflexão</b> e a <b>tarefa prática</b>.
+            Você pode preenchê-los dia a dia clicando abaixo ou selecionando qualquer dia na lista ao lado.
+          </p>
+        </div>
+        <Link
+          href={`/admin/devotionals/${journey.id}/days/${nextUnfilledDay}`}
+          className="whitespace-nowrap rounded-lg bg-emerald-500 px-5 py-2.5 text-xs font-bold text-black shadow-lg hover:bg-emerald-400 transition-all"
+        >
+          {journey.days.length === 0
+            ? "Começar pelo Dia 1 ➔"
+            : journey.days.length < journey.totalDays
+            ? `Cadastrar Dia ${nextUnfilledDay} ➔`
+            : "Revisar Todos os Dias ➔"}
+        </Link>
+      </div>
+
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* Lado Esquerdo: Configurações da Jornada */}
         <div className="rounded-xl border border-white/10 bg-white/5 p-5">
-          <h2 className="mb-4 text-base font-bold text-white">Configurações da Jornada</h2>
+          <h2 className="mb-4 text-base font-bold text-white">Configurações Gerais da Jornada</h2>
           <JourneyForm
             action={boundUpdateAction}
-            submitLabel="Salvar alterações"
+            submitLabel="Salvar alterações gerais"
             confirmMessage="Deseja salvar as alterações da jornada?"
             items={items}
             defaultValues={{
@@ -79,9 +104,12 @@ export default async function EditJourneyPage({ params }: { params: Promise<{ id
         {/* Lado Direito: Grade dos Dias */}
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-white">Dias do Devocional</h2>
-            <span className="text-xs text-emerald-400">
-              {journey.days.length} de {journey.totalDays} dias cadastrados
+            <div>
+              <h2 className="text-base font-bold text-white">Tarefas e Leituras Diárias</h2>
+              <p className="text-[11px] text-white/50">Clique em qualquer dia para editar seus versículos e tarefas</p>
+            </div>
+            <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-semibold text-emerald-400">
+              {journey.days.length} / {journey.totalDays} cadastrados
             </span>
           </div>
 
@@ -89,34 +117,59 @@ export default async function EditJourneyPage({ params }: { params: Promise<{ id
             {allDaysList.map(({ dayNumber, date, record }) => (
               <div
                 key={dayNumber}
-                className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-4 py-3"
+                className={`flex flex-col gap-3 rounded-lg border p-4 transition-all sm:flex-row sm:items-center sm:justify-between ${
+                  record
+                    ? "border-white/10 bg-white/5"
+                    : "border-dashed border-amber-500/30 bg-amber-500/5"
+                }`}
               >
-                <div>
+                <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-xs font-bold text-emerald-400">
+                    <span
+                      className={`rounded px-1.5 py-0.5 text-xs font-bold ${
+                        record
+                          ? "bg-emerald-500/20 text-emerald-400"
+                          : "bg-amber-500/20 text-amber-400"
+                      }`}
+                    >
                       Dia {dayNumber}
                     </span>
                     <span className="text-xs text-white/50">
                       {formatBR(date, "dd/MM/yyyy (EEE)", { locale: ptBR })}
                     </span>
+                    {record ? (
+                      <span className="text-[10px] text-emerald-400">✓ Preenchido</span>
+                    ) : (
+                      <span className="text-[10px] text-amber-300">⚠️ Pendente</span>
+                    )}
                   </div>
-                  <p className="mt-1 text-sm font-semibold text-white">
-                    {record ? record.title : "Sem conteúdo cadastrado"}
+
+                  <p className="text-sm font-semibold text-white">
+                    {record ? record.title : "Nenhum conteúdo cadastrado ainda"}
                   </p>
+
                   {record?.bibleVerse && (
-                    <p className="text-xs text-emerald-300">📖 {record.bibleVerse}</p>
+                    <p className="text-xs text-emerald-300">
+                      📖 <b>Leitura:</b> {record.bibleVerse}
+                    </p>
+                  )}
+
+                  {record?.taskPrompt && (
+                    <p className="text-xs text-yellow-300">
+                      🎯 <b>Tarefa:</b> {record.taskPrompt}
+                    </p>
                   )}
                 </div>
 
                 <Link
                   href={`/admin/devotionals/${journey.id}/days/${dayNumber}`}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
+                  className={`self-start whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold sm:self-center ${
                     record
                       ? "bg-white/10 text-white hover:bg-white/20"
                       : "bg-emerald-500 text-black hover:bg-emerald-400"
                   }`}
                 >
-                  {record ? "Editar conteúdo" : "Cadastrar conteúdo"}
+                  {record ? "Editar Conteúdo" : "Cadastrar Tarefa & Texto"}
                 </Link>
               </div>
             ))}

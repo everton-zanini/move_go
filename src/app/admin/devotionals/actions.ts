@@ -9,6 +9,7 @@ import {
 } from "@/server/dto/devotional.dto";
 import {
   createJourney,
+  getJourneyById,
   removeJourney,
   saveDayContent,
   toggleJourneyActive,
@@ -41,7 +42,12 @@ export async function createJourneyAction(
   }
 
   revalidatePath("/admin/devotionals");
-  redirect(withFlash(`/admin/devotionals/${journey.id}`, "Jornada criada com sucesso. Agora cadastre os dias!"));
+  redirect(
+    withFlash(
+      `/admin/devotionals/${journey.id}/days/1`,
+      "Jornada criada com sucesso! Agora cadastre os versículos bíblicos, reflexão e tarefa do Dia 1."
+    )
+  );
 }
 
 export async function updateJourneyAction(
@@ -115,6 +121,25 @@ export async function saveDayAction(
     throw error;
   }
 
+  const goToNext = formData.get("goToNextDay") === "true";
+  const journey = await getJourneyById(journeyId, churchId);
+
   revalidatePath(`/admin/devotionals/${journeyId}`);
-  redirect(withFlash(`/admin/devotionals/${journeyId}`, `Conteúdo do Dia ${parsed.data.dayNumber} salvo com sucesso.`));
+  revalidatePath(`/admin/devotionals/${journeyId}/days/${parsed.data.dayNumber}`);
+
+  if (goToNext && parsed.data.dayNumber < journey.totalDays) {
+    redirect(
+      withFlash(
+        `/admin/devotionals/${journeyId}/days/${parsed.data.dayNumber + 1}`,
+        `Dia ${parsed.data.dayNumber} salvo! Avançando para o Dia ${parsed.data.dayNumber + 1}...`
+      )
+    );
+  }
+
+  redirect(
+    withFlash(
+      `/admin/devotionals/${journeyId}/days/${parsed.data.dayNumber}`,
+      `Conteúdo do Dia ${parsed.data.dayNumber} salvo com sucesso.`
+    )
+  );
 }
