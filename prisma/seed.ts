@@ -117,6 +117,7 @@ async function seedItems() {
     { name: "Óculos", description: "Óculos estiloso.", sprite: "item_glasses", slot: ItemSlot.ACCESSORY, unlockCheckInCount: 5 },
     { name: "Fone Adora", description: "Item especial do evento Adora Santana.", sprite: "item_headphones_adora", slot: ItemSlot.ACCESSORY },
     { name: "BeBrave Glasses", description: "Óculos especial do evento BeBrave.", sprite: "item_bebrave_glasses", slot: ItemSlot.ACCESSORY },
+    { name: "Cenário Altar Sagrado", description: "Fundo comemorativo concedido a quem completa a jornada devocional.", sprite: "bg_sacred_altar", slot: ItemSlot.BACKGROUND },
   ];
 
   const created = [];

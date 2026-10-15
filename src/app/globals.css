@@ -429,6 +429,21 @@ body {
   background: linear-gradient(to top, #fb923ccc, transparent);
 }
 
+/* Cenário Especial de Devocional: Altar Sagrado (dourado/celestial com estrelas de luz) */
+.pet-scene[data-background="bg_sacred_altar"] {
+  background: linear-gradient(to bottom, #1e1b4b, #2e1065 60%, #451a03 100%) !important;
+}
+.pet-scene[data-background="bg_sacred_altar"]::before {
+  top: 10%;
+  left: 25%;
+  background: #fef08a;
+  box-shadow: 60px 10px #fef08a, 140px -20px #fef08a, 200px 30px #fde047, -30px 40px #fef08a, 250px 15px #fef08a;
+  animation: scene-twinkle 2.5s ease-in-out infinite;
+}
+.pet-scene[data-background="bg_sacred_altar"]::after {
+  background: linear-gradient(to top, #fbbf2455, #f59e0b11 50%, transparent) !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pet-scene::before {
     animation: none;

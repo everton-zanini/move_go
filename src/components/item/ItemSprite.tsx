@@ -22,9 +22,17 @@ export function ItemSprite({
   const src = SPRITE_IMAGES[spriteKey];
 
   if (!src) {
-    return <span className={`text-3xl ${className}`} role={alt ? "img" : undefined} aria-label={alt || undefined} aria-hidden={alt ? undefined : true}>
-        ✨
-      </span>;
+    const fallbackEmoji = spriteKey.startsWith("bg_") ? "🏛️" : "✨";
+    return (
+      <span
+        className={`text-3xl ${className}`}
+        role={alt ? "img" : undefined}
+        aria-label={alt || undefined}
+        aria-hidden={alt ? undefined : true}
+      >
+        {fallbackEmoji}
+      </span>
+    );
   }
 
   return (

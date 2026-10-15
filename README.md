@@ -157,6 +157,7 @@ Ver `.claude/skills/architecture/SKILL.md` para as convenções de camadas (UI �
 8. ✅ PWA + refinamento visual (ícones reais 192/512 + maskable, fallback offline em `/~offline`, páginas 404/erro estilizadas, `trustHost` corrigido para funcionar em produção fora da Vercel, `robots.txt` bloqueando indexação — app privado — e ajustes de contraste; auditado com Lighthouse: Accessibility 100, Best Practices 100)
 9. ✅ Multi-igreja (tenants isolados por `churchId`, migration `add_churches` movendo os dados existentes para a Move Santana, promoção de admins por igreja e painel de super-admin em `/platform`)
 10. ✅ Notificações push no PWA (Web Push API + VAPID, Service Worker via Serwist, modelo `PushSubscription`, disparo automático filtrado por igreja na criação de eventos e toggle de ativação no perfil do usuário)
+11. ✅ Jornadas Devocionais / Check-ins Diários (modelos `DevotionalJourney`, `DevotionalDay`, `DevotionalCheckIn`, calendário coletivo, ganho diário de XP e felicidade do pet, trava de dias futuros, leitura retroativa sem XP, anotações pessoais privadas e desbloqueio de cenário exclusivo para o pet)
 
 ## Ideias futuras (backlog)
 

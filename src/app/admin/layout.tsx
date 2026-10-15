@@ -55,6 +55,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           Eventos
         </Link>
         <Link
+          href="/admin/devotionals"
+          className="rounded-md px-3 py-1.5 text-white/70 hover:bg-white/5 hover:text-white"
+        >
+          Devocionais
+        </Link>
+        <Link
           href="/admin/invite-links"
           className="rounded-md px-3 py-1.5 text-white/70 hover:bg-white/5 hover:text-white"
         >

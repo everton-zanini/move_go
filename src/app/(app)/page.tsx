@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { auth } from "@/server/auth/auth";
 import { requireMember } from "@/server/auth/context";
 import { findPetByUserId } from "@/server/repositories/pet.repository";
@@ -8,6 +9,7 @@ import {
 } from "@/server/services/pet.service";
 import { getLevelCurveParams } from "@/server/services/config.service";
 import { listInventory } from "@/server/services/inventory.service";
+import { getUserActiveJourney } from "@/server/services/devotional.service";
 import { xpProgressForLevel } from "@/lib/game/level-curve";
 import { getLineKey, getPetTheme } from "@/lib/game/pet-theme";
 import { getPetMood, PET_MOOD_MESSAGES } from "@/lib/game/pet-mood";
@@ -28,6 +30,7 @@ export default async function HomePage() {
     member.role !== "ADMIN" ? await applyMissedEventPenalties(member.userId, member.churchId) : null;
   const pet = session?.user ? await findPetByUserId(session.user.id) : null;
   const inventory = session?.user ? await listInventory(session.user.id) : [];
+  const activeJourney = await getUserActiveJourney(member.userId, member.churchId);
   const equippedItemSpriteKeys = inventory
     .filter((ui) => ui.equipped)
     .map((ui) => ui.item.sprite);
@@ -54,6 +57,7 @@ export default async function HomePage() {
     needsName ? listSelectableLines(pet.level) : Promise.resolve([]),
     needsName ? Promise.resolve(null) : getNextEvolutionProgress(pet),
   ]);
+  const equippedBackgroundItem = inventory.find((ui) => ui.equipped && ui.item.slot === "BACKGROUND");
   const theme = getPetTheme(pet.currentEvolution?.sprite ?? "egg");
 
   return (
@@ -65,6 +69,7 @@ export default async function HomePage() {
         aria-hidden="true"
         className="pet-scene"
         data-line={getLineKey(pet.currentEvolution?.sprite ?? "egg") ?? "egg"}
+        data-background={equippedBackgroundItem?.item.sprite}
       />
       <div className="w-full max-w-xs text-center">
         <p className="font-pixel text-[10px] text-[color:var(--accent,#34d399)]">MOVEGO</p>
@@ -130,6 +135,32 @@ export default async function HomePage() {
             streak={pet.currentStreak}
             xp={pet.totalXp}
           />
+
+          {activeJourney && (
+            <Link
+              href="/devotional"
+              className="flex w-full max-w-xs items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-left transition-all hover:bg-emerald-500/15"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">📖</span>
+                <div>
+                  <p className="text-xs font-bold text-emerald-400">
+                    {activeJourney.todayDayNumber
+                      ? `Devocional de Hoje · Dia ${activeJourney.todayDayNumber}`
+                      : activeJourney.journey.title}
+                  </p>
+                  <p className="text-[11px] text-white/70">
+                    {activeJourney.days.find((d) => d.dayNumber === activeJourney.todayDayNumber)?.completed
+                      ? "✅ Concluído por hoje! Ver dias"
+                      : "Ler e alimentar a felicidade do pet ➔"}
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-emerald-400">
+                {activeJourney.completedCount}/{activeJourney.journey.totalDays}
+              </span>
+            </Link>
+          )}
 
           <PetShareToggle
             petName={pet.nickname ?? session?.user?.name ?? "Jovem"}
